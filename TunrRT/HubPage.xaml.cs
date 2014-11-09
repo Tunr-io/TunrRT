@@ -30,8 +30,13 @@ namespace TunrRT
     public sealed partial class HubPage : Page
     {
         private readonly NavigationHelper navigationHelper;
-        private readonly ObservableDictionary defaultViewModel = new ObservableDictionary();
-        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
+		private DataSource DataSource
+		{
+			get
+			{
+				return (App.Current as App).DataSource;
+			}
+		}
 
         public HubPage()
         {
@@ -41,7 +46,6 @@ namespace TunrRT
             DisplayInformation.AutoRotationPreferences = DisplayOrientations.Portrait;
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
-
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
@@ -53,15 +57,6 @@ namespace TunrRT
         public NavigationHelper NavigationHelper
         {
             get { return this.navigationHelper; }
-        }
-
-        /// <summary>
-        /// Gets the view model for this <see cref="Page"/>.
-        /// This can be changed to a strongly typed view model.
-        /// </summary>
-        public ObservableDictionary DefaultViewModel
-        {
-            get { return this.defaultViewModel; }
         }
 
         /// <summary>
@@ -78,8 +73,7 @@ namespace TunrRT
         private async void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            var sampleDataGroups = await SampleDataSource.GetGroupsAsync();
-            this.DefaultViewModel["Groups"] = sampleDataGroups;
+			DataSource.Synchronize();
         }
 
         /// <summary>
@@ -93,32 +87,6 @@ namespace TunrRT
         private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             // TODO: Save the unique state of the page here.
-        }
-
-        /// <summary>
-        /// Shows the details of a clicked group in the <see cref="SectionPage"/>.
-        /// </summary>
-        private void GroupSection_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            var groupId = ((SampleDataGroup)e.ClickedItem).UniqueId;
-            if (!Frame.Navigate(typeof(SectionPage), groupId))
-            {
-                throw new Exception(this.resourceLoader.GetString("NavigationFailedExceptionMessage"));
-            }
-        }
-
-        /// <summary>
-        /// Shows the details of an item clicked on in the <see cref="ItemPage"/>
-        /// </summary>
-        private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            // Navigate to the appropriate destination page, configuring the new page
-            // by passing required information as a navigation parameter
-            var itemId = ((SampleDataItem)e.ClickedItem).UniqueId;
-            if (!Frame.Navigate(typeof(ItemPage), itemId))
-            {
-                throw new Exception(this.resourceLoader.GetString("NavigationFailedExceptionMessage"));
-            }
         }
 
         #region NavigationHelper registration

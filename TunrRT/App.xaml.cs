@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using TunrRT.Data;
 
 // The Hub Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -27,6 +28,14 @@ namespace TunrRT
     public sealed partial class App : Application
     {
         private TransitionCollection transitions;
+		private DataSource _DataSource = new DataSource();
+		public DataSource DataSource
+		{
+			get
+			{
+				return this._DataSource;
+			}
+		}
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -104,7 +113,7 @@ namespace TunrRT
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter.
-                if (!rootFrame.Navigate(typeof(HubPage), e.Arguments))
+                if (!rootFrame.Navigate(typeof(LoginPage), e.Arguments))
                 {
                     throw new Exception("Failed to create initial page");
                 }

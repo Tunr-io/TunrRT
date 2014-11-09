@@ -6,8 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:data="using:TunrRT.Data"
-    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
-    d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:SampleDataSource}}"
+    DataContext="{Binding DataSource}"
+    d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:DataSource}}"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -175,7 +175,6 @@
                         SelectionMode="None"
                         IsItemClickEnabled="True"
                         ItemsSource="{Binding Items}"
-                        ItemClick="ItemView_ItemClick"
                         ContinuumNavigationTransitionInfo.ExitElementContainer="True">
 						<ListView.ItemTemplate>
 							<DataTemplate>
@@ -189,9 +188,9 @@
 				</DataTemplate>
 			</HubSection>
 
-			<HubSection x:Uid="HubNowPlayingSection">
+			<HubSection x:Uid="HubNowPlayingSection" Style="{StaticResource HubLibrarySectionStyle}">
 				<DataTemplate>
-					<StackPanel Orientation="Vertical" Margin="0,9,0,0">
+					<StackPanel Orientation="Vertical" Margin="0,24,0,0">
 						<TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="SONG TITLE" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
 						<TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="THE ARTIST NAME" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
 						<Rectangle HorizontalAlignment="Left" Width="240" Height="240" Margin="0,8,0,8" Fill="#FF202020" />
