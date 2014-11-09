@@ -11,7 +11,7 @@
 	<Grid>
 		<StackPanel VerticalAlignment="Center" Margin="0,0,0,250">
 			<TextBlock Text="Tunr" HorizontalAlignment="Center" FontFamily="Segoe WP" FontWeight="Light" FontSize="112" Foreground="Black" />
-			<TextBox Name="TextBoxEmail" Width="280" HorizontalAlignment="Center" PlaceholderText="e-mail address" Background="#FFF0F0F0" />
+			<TextBox InputScope="EmailSmtpAddress" Name="TextBoxEmail" Width="280" HorizontalAlignment="Center" PlaceholderText="e-mail address" Background="#FFF0F0F0" />
 			<PasswordBox Name="TextBoxPassword" Width="280" HorizontalAlignment="Center" PlaceholderText="password" Background="#FFF0F0F0" />
 		</StackPanel>
 	</Grid>

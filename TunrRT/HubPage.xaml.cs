@@ -73,6 +73,8 @@ namespace TunrRT
         private async void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
+			StatusBar statusBar = Windows.UI.ViewManagement.StatusBar.GetForCurrentView();
+			statusBar.HideAsync();
 			DataSource.Synchronize();
         }
 
