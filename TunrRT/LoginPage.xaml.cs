@@ -43,6 +43,7 @@ namespace TunrRT
 			try {
 				await app.DataSource.SetCredentialsAsync(TextBoxEmail.Text, TextBoxPassword.Password);
 				Frame.Navigate(typeof(HubPage));
+				Frame.BackStack.Clear();
 				return;
 			}
 			catch (Exception)

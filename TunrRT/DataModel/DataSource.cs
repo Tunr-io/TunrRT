@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -11,6 +12,7 @@ using Windows.Data.Json;
 using Windows.Storage;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using System.Reflection;
 
 // The data model defined by this file serves as a representative example of a strongly-typed
 // model.  The property names chosen coincide with data bindings in the standard item templates.
@@ -20,7 +22,7 @@ using Windows.UI.Xaml.Media.Imaging;
 // responsiveness by initiating the data loading task in the code behind for App.xaml when the app 
 // is first launched.
 
-namespace TunrRT.Data
+namespace TunrRT.DataModel
 {
     /// <summary>
     /// Creates a collection of groups and items with content read from a static json file.
@@ -28,11 +30,23 @@ namespace TunrRT.Data
     /// SampleDataSource initializes with data read from a static json file included in the 
     /// project.  This provides sample data at both design-time and run-time.
     /// </summary>
-    public class DataSource
+    public class DataSource : INotifyPropertyChanged
     {
 		public const string BASEURL = "https://play.tunr.io";
 		private AuthenticationToken AuthToken;
 		private SQLiteAsyncConnection SqlLiteConnection;
+
+		// Implement INotifyPropertyChanged ...
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected void OnPropertyChanged(string name)
+		{
+			PropertyChangedEventHandler handler = PropertyChanged;
+			if (handler != null)
+			{
+				handler(this, new PropertyChangedEventArgs(name));
+			}
+		}
 
 		public DataSource()
 		{
@@ -74,6 +88,7 @@ namespace TunrRT.Data
 
 		public async Task Synchronize()
 		{
+			System.Diagnostics.Debug.WriteLine("Synchronizing with Tunr...");
 			using (var client = new HttpClient())
 			{
 				client.BaseAddress = new Uri(BASEURL);
@@ -82,9 +97,31 @@ namespace TunrRT.Data
 				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken.access_token);
 				var response = await client.GetAsync("api/Library");
 				var songs = await response.Content.ReadAsAsync<List<Song>>();
+				System.Diagnostics.Debug.WriteLine("Fetched " + songs.Count + " songs.");
+				await SqlLiteConnection.InsertOrReplaceAllAsync(songs);
+				// TODO: Remove songs that have been deleted from Tunr
+				System.Diagnostics.Debug.WriteLine("Database updated.");
 			}
 		}
 
+		public List<Song> QueryFilteredSongs(Song targetFilter)
+		{
+			var props = targetFilter.GetType().GetRuntimeProperties();
+			var nonnull = props.Where(p => p.GetValue(targetFilter, null) != null).ToList();
 
-    }
+			string sqlQuery = "SELECT * FROM Songs WHERE";
+			for (int i=0; i<nonnull.Count; i++) {
+				var prop = nonnull[i];
+				if (i > 0) {
+					sqlQuery += " AND";
+				}
+				sqlQuery += " " + prop.Name + " = ? ";
+			}
+			var sqlParams = nonnull.Select(p => p.GetValue(targetFilter, null)).ToArray<object>();
+
+			var matches = SqlLiteConnection.QueryAsync<Song>(sqlQuery, sqlParams).GetAwaiter().GetResult();
+			return matches;
+		}
+
+	}
 }

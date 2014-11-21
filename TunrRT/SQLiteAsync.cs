@@ -127,6 +127,18 @@ namespace SQLite
 			});
 		}
 
+		public Task<int> InsertOrReplaceAsync(object item)
+		{
+			return Task.Factory.StartNew(() =>
+			{
+				var conn = GetConnection();
+				using (conn.Lock())
+				{
+					return conn.InsertOrReplace(item);
+				}
+			});
+		}
+
 		public Task<int> UpdateAsync (object item)
 		{
 			return Task.Factory.StartNew (() => {
@@ -211,6 +223,18 @@ namespace SQLite
 				var conn = GetConnection ();
 				using (conn.Lock ()) {
 					return conn.InsertAll (items);
+				}
+			});
+		}
+
+		public Task<int> InsertOrReplaceAllAsync(IEnumerable items)
+		{
+			return Task.Factory.StartNew(() =>
+			{
+				var conn = GetConnection();
+				using (conn.Lock())
+				{
+					return conn.InsertAll(items, "OR REPLACE");
 				}
 			});
 		}

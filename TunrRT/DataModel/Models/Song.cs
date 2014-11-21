@@ -8,19 +8,19 @@ using System.Threading.Tasks;
 namespace TunrRT.DataModel.Models
 {
 	[Table("Songs")]
-	class Song
+	public class Song
 	{
 		[PrimaryKey,Unique]
-		public Guid SongId { get; set; }
-		public Guid OwnerId { get; set; }
+		public Guid? SongId { get; set; }
+		public Guid? OwnerId { get; set; }
 		public string SongMD5 { get; set; }
 		public string Title { get; set; }
 		public string Artist { get; set; }
 		public string Album { get; set; }
-		public int TrackNumber { get; set; }
-		public int DiscNumber { get; set; }
-		public int Year { get; set; }
+		public int? TrackNumber { get; set; }
+		public int? DiscNumber { get; set; }
+		public int? Year { get; set; }
 		public string Genre { get; set; }
-		public double Length { get; set; }
+		public double? Length { get; set; }
 	}
 }
