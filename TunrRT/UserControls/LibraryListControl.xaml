@@ -17,7 +17,5 @@
 		<local:LibraryListTemplateSelector x:Key="LibraryListTemplateSelector" 
 										   ArtistListTemplate="{StaticResource ArtistListTemplate}" />
 	</UserControl.Resources>
-    <Grid>
-		<ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" />
-    </Grid>
+	<ContentControl ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" />
 </UserControl>

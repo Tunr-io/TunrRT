@@ -132,7 +132,11 @@ namespace TunrRT.DataModel
 			var props = targetFilter.GetType().GetRuntimeProperties();
 			var nonnull = props.Where(p => p.GetValue(targetFilter, null) != null).ToList();
 
-			string sqlQuery = "SELECT * FROM Songs WHERE";
+			string sqlQuery = "SELECT * FROM Songs ";
+			if (nonnull.Count > 0)
+			{
+				sqlQuery += " WHERE";
+			}
 			for (int i=0; i<nonnull.Count; i++) {
 				var prop = nonnull[i];
 				if (i > 0) {

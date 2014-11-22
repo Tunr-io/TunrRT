@@ -11,6 +11,10 @@ namespace TunrRT.UserControls
 	class LibraryListTemplateSelector : DataTemplateSelector
 	{
 		public DataTemplate ArtistListTemplate { get; set; }
+		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+		{
+			return ArtistListTemplate;
+		}
 		protected override DataTemplate SelectTemplateCore(object item)
 		{
 			return ArtistListTemplate;
