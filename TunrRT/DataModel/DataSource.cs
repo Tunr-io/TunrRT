@@ -36,6 +36,16 @@ namespace TunrRT.DataModel
 		private AuthenticationToken AuthToken;
 		private SQLiteAsyncConnection SqlLiteConnection;
 
+		public ObservableCollection<LibraryList> BrowseLists { get; set; }
+
+		public LibraryList ActiveList
+		{
+			get
+			{
+				return BrowseLists.LastOrDefault();
+			}
+		}
+
 		// Implement INotifyPropertyChanged ...
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -50,7 +60,14 @@ namespace TunrRT.DataModel
 
 		public DataSource()
 		{
+			BrowseLists = new ObservableCollection<LibraryList>();
+			BrowseLists.CollectionChanged += BrowseLists_CollectionChanged;
 			InitDb().GetAwaiter().GetResult();
+		}
+
+		void BrowseLists_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			OnPropertyChanged("ActiveList");
 		}
 
 		public async Task InitDb()
@@ -101,6 +118,12 @@ namespace TunrRT.DataModel
 				await SqlLiteConnection.InsertOrReplaceAllAsync(songs);
 				// TODO: Remove songs that have been deleted from Tunr
 				System.Diagnostics.Debug.WriteLine("Database updated.");
+				BrowseLists.Add(new LibraryList(this)
+				{
+					FilteredPropertyName = "",
+					FilterSong = new Song(),
+					ListName = "Music"
+				});
 			}
 		}
 

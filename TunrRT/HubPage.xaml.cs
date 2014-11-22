@@ -30,17 +30,11 @@ namespace TunrRT
     public sealed partial class HubPage : Page
     {
         private readonly NavigationHelper navigationHelper;
-		private DataSource DataSource
-		{
-			get
-			{
-				return (App.Current as App).DataSource;
-			}
-		}
 
         public HubPage()
         {
             this.InitializeComponent();
+			DataContext = (App.Current as App).DataSource;
 
             // Hub is only supported in Portrait orientation
             DisplayInformation.AutoRotationPreferences = DisplayOrientations.Portrait;
@@ -75,7 +69,7 @@ namespace TunrRT
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
 			StatusBar statusBar = Windows.UI.ViewManagement.StatusBar.GetForCurrentView();
 			statusBar.HideAsync();
-			DataSource.Synchronize();
+			(DataContext as DataSource).Synchronize();
         }
 
         /// <summary>

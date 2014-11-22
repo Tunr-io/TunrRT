@@ -4,11 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:TunrRT"
 	xmlns:controls="using:TunrRT.UserControls"
+	xmlns:data="using:TunrRT.DataModel"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="800"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+	d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:DataSource}}">
 	<UserControl.Resources>
 		<Style x:Key="LibraryHeaderStyle" TargetType="TextBlock">
 			<Setter Property="FontFamily" Value="Segoe WP"/>
@@ -26,13 +28,14 @@
 			<RowDefinition></RowDefinition>
 		</Grid.RowDefinitions>
 		<StackPanel Grid.Row="0">
-			<TextBlock Text="music" Style="{StaticResource LibraryHeaderStyle}" FontSize="82" />
-			<ItemsControl>
-				<TextBlock Text="{Binding Text}" Style="{StaticResource LibraryHeaderStyle}" />
+			<ItemsControl ItemsSource="{Binding BrowseLists}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding ListName}" Style="{StaticResource LibraryHeaderStyle}" />
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
 			</ItemsControl>
 		</StackPanel>
-		<ItemsControl Grid.Row="1">
-			<controls:LibraryListControl />
-		</ItemsControl>
+		<controls:LibraryListControl Grid.Row="1" DataContext="{Binding ActiveList}"/>
 	</Grid>
 </UserControl>

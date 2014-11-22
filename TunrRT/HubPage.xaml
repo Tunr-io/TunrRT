@@ -6,8 +6,7 @@
 	xmlns:controls="using:TunrRT.UserControls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:data="using:TunrRT.Data"
-    DataContext="{Binding DataSource}"
+    xmlns:data="using:TunrRT.DataModel"
     d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:DataSource}}"
     mc:Ignorable="d">
 
@@ -159,9 +158,9 @@
 
 	<Grid x:Name="LayoutRoot">
 		<Hub x:Name="Hub" x:Uid="Hub">
-			<HubSection x:Uid="HubLibrarySection" Padding="0,9,0,0" DataContext="{Binding Groups}" Background="White" Style="{StaticResource HubLibrarySectionStyle}">
+			<HubSection x:Uid="HubLibrarySection" Padding="0,9,0,0" Background="White" Style="{StaticResource HubLibrarySectionStyle}">
 				<DataTemplate>
-					<controls:LibraryControl />
+					<controls:LibraryControl DataContext="{Binding}" />
 				</DataTemplate>
 			</HubSection>
 
