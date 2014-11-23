@@ -11,11 +11,75 @@
     d:DesignWidth="400"
 	d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:DataSource}, Path=BrowseLists[0]}">
 
-	<ListView ItemsSource="{Binding Results}">
-		<ListView.ItemTemplate>
-			<DataTemplate>
-				<TextBlock Text="{Binding Artist}" Foreground="Black" />
-			</DataTemplate>
-		</ListView.ItemTemplate>
-	</ListView>
+	<UserControl.Resources>
+		<local:ArtistListConverter x:Key="ArtistListConverter" />
+		<CollectionViewSource x:Key="ArtistCollection" IsSourceGrouped="True" Source="{Binding Results, Converter={StaticResource ArtistListConverter}}" />
+	</UserControl.Resources>
+	<SemanticZoom>
+		<SemanticZoom.ZoomedOutView>
+			<GridView ItemsSource="{Binding Source={StaticResource ArtistCollection},Path=CollectionGroups}">
+				<GridView.ItemTemplate>
+					<DataTemplate>
+						<Border Background="White"
+							BorderBrush="White"
+							BorderThickness="2.5"
+							Height="79"
+							Width="79"
+							HorizontalAlignment="Left"
+							Margin="0,0,9.5,9.5">
+							<TextBlock Text="{Binding Group.Key}"
+							   Foreground="Black"
+							   FontSize="38.667"
+							   FontWeight="SemiBold"
+							   TextLineBounds="Tight"
+							   OpticalMarginAlignment="TrimSideBearings"
+							   IsColorFontEnabled="False"
+							   IsTextScaleFactorEnabled="False"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Bottom"
+							   Margin="7,0,0,7" />
+						</Border>
+					</DataTemplate>
+				</GridView.ItemTemplate>
+			</GridView>
+		</SemanticZoom.ZoomedOutView>
+		<SemanticZoom.ZoomedInView>
+			<ListView IsItemClickEnabled="True" ItemsSource="{Binding Source={StaticResource ArtistCollection}}">
+				<ListView.GroupStyle>
+					<GroupStyle>
+						<GroupStyle.HeaderTemplate>
+							<DataTemplate>
+								<Border Background="Transparent"
+									BorderBrush="Black"
+									BorderThickness="2.5"
+									Width="49.5"
+									Height="49.5"
+									HorizontalAlignment="Left"
+									Margin="0,0,0,9.5">
+										<TextBlock Text="{Binding Key}"
+										   Foreground="White"
+										   FontSize="39"
+										   FontFamily="Segoe WP"
+											FontWeight="Black"
+										   TextLineBounds="Tight"
+										   OpticalMarginAlignment="TrimSideBearings"
+										   IsColorFontEnabled="False"
+										   IsTextScaleFactorEnabled="False"
+										   HorizontalAlignment="Left"
+										   VerticalAlignment="Bottom"
+										   Margin="5.5,0,0,7" />
+								</Border>
+							</DataTemplate>
+						</GroupStyle.HeaderTemplate>
+					</GroupStyle>
+				</ListView.GroupStyle>
+				<ListView.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Artist}" Foreground="Black" FontSize="26" />
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+		</SemanticZoom.ZoomedInView>
+	</SemanticZoom>
+	
 </UserControl>
