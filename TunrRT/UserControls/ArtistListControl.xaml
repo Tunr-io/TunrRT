@@ -17,18 +17,18 @@
 	</UserControl.Resources>
 	<SemanticZoom>
 		<SemanticZoom.ZoomedOutView>
-			<GridView ItemsSource="{Binding Source={StaticResource ArtistCollection},Path=CollectionGroups}">
+			<GridView Margin="9.5,9.5,0,0" ItemsSource="{Binding Source={StaticResource ArtistCollection},Path=CollectionGroups}">
 				<GridView.ItemTemplate>
 					<DataTemplate>
-						<Border Background="White"
-							BorderBrush="White"
+						<Border Background="Black"
+							BorderBrush="Black"
 							BorderThickness="2.5"
 							Height="79"
 							Width="79"
 							HorizontalAlignment="Left"
 							Margin="0,0,9.5,9.5">
 							<TextBlock Text="{Binding Group.Key}"
-							   Foreground="Black"
+							   Foreground="White"
 							   FontSize="38.667"
 							   FontWeight="SemiBold"
 							   TextLineBounds="Tight"
@@ -49,25 +49,25 @@
 					<GroupStyle>
 						<GroupStyle.HeaderTemplate>
 							<DataTemplate>
-								<Border Background="Transparent"
+								<Border Background="Black"
 									BorderBrush="Black"
 									BorderThickness="2.5"
 									Width="49.5"
 									Height="49.5"
 									HorizontalAlignment="Left"
-									Margin="0,0,0,9.5">
-										<TextBlock Text="{Binding Key}"
-										   Foreground="White"
-										   FontSize="39"
-										   FontFamily="Segoe WP"
-											FontWeight="Black"
-										   TextLineBounds="Tight"
-										   OpticalMarginAlignment="TrimSideBearings"
-										   IsColorFontEnabled="False"
-										   IsTextScaleFactorEnabled="False"
-										   HorizontalAlignment="Left"
-										   VerticalAlignment="Bottom"
-										   Margin="5.5,0,0,7" />
+									Margin="0,9.5,0,9.5">
+									<TextBlock Text="{Binding Key}"
+											Foreground="White"
+											FontSize="28"
+											FontFamily="Segoe WP"
+											FontWeight="SemiBold"
+											TextLineBounds="Tight"
+											OpticalMarginAlignment="TrimSideBearings"
+											IsColorFontEnabled="False"
+											IsTextScaleFactorEnabled="False"
+											HorizontalAlignment="Left"
+											VerticalAlignment="Bottom"
+											Margin="5.5,0,0,7" />
 								</Border>
 							</DataTemplate>
 						</GroupStyle.HeaderTemplate>

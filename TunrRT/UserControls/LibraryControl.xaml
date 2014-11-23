@@ -5,6 +5,7 @@
     xmlns:local="using:TunrRT"
 	xmlns:controls="using:TunrRT.UserControls"
 	xmlns:data="using:TunrRT.DataModel"
+	xmlns:converters="using:TunrRT.ValueConverters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -14,12 +15,13 @@
 	<UserControl.Resources>
 		<Style x:Key="LibraryHeaderStyle" TargetType="TextBlock">
 			<Setter Property="FontFamily" Value="Segoe WP"/>
-			<Setter Property="FontSize" Value="48"/>
+			<Setter Property="FontSize" Value="64"/>
 			<Setter Property="FontWeight" Value="Light"/>
 			<Setter Property="TextWrapping" Value="NoWrap"/>
 			<Setter Property="Foreground" Value="Black"/>
 			<Setter Property="TextLineBounds" Value="Tight"/>
 		</Style>
+		<converters:ToLowercaseConverter x:Key="ToLowercaseConverter" />
 	</UserControl.Resources>
 
 	<Grid>
@@ -28,14 +30,14 @@
 			<RowDefinition></RowDefinition>
 		</Grid.RowDefinitions>
 		<StackPanel Grid.Row="0">
-			<ItemsControl ItemsSource="{Binding BrowseLists}">
+			<ItemsControl Margin="12,2,0,16" ItemsSource="{Binding BrowseLists}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding ListName}" Style="{StaticResource LibraryHeaderStyle}" />
+						<TextBlock Text="{Binding ListName, Converter={StaticResource ToLowercaseConverter}}" Style="{StaticResource LibraryHeaderStyle}" />
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
 		</StackPanel>
-		<controls:LibraryListControl Grid.Row="1" DataContext="{Binding ActiveList}"/>
+		<controls:LibraryListControl Margin="12,0,0,0" Grid.Row="1" DataContext="{Binding ActiveList}"/>
 	</Grid>
 </UserControl>

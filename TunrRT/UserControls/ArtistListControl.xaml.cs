@@ -33,7 +33,7 @@ namespace TunrRT.UserControls
 		public object Convert(object value, Type targetType, object parameter, string language)
 		{
 			List<Song> songs = value as List<Song>;
-			return songs.GroupBy(a => a.Artist.ToUpper()[0]);
+			return songs.GroupBy(a => a.Artist).Select(a => a.First()).OrderBy(a => a.Artist).GroupBy(a => a.Artist.ToUpper()[0]);
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, string language)

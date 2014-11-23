@@ -109,6 +109,7 @@
       <DependentUpon>LibraryListControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\LibraryListTemplateSelector.cs" />
+    <Compile Include="ValueConverters\ToLowercaseConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -187,9 +188,7 @@
       <Name>SQLite for Windows Phone 8.1</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ValueConverters\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>
