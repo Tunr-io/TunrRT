@@ -14,8 +14,12 @@
 		<DataTemplate x:Key="ArtistListTemplate">
 			<local:ArtistListControl DataContext="{Binding}" />
 		</DataTemplate>
+		<DataTemplate x:Key="AlbumListTemplate">
+			<local:AlbumListControl DataContext="{Binding}" />
+		</DataTemplate>
 		<local:LibraryListTemplateSelector x:Key="LibraryListTemplateSelector" 
-										   ArtistListTemplate="{StaticResource ArtistListTemplate}" />
+										   ArtistListTemplate="{StaticResource ArtistListTemplate}"
+										   AlbumListTemplate="{StaticResource AlbumListTemplate}"/>
 	</UserControl.Resources>
-	<ContentControl ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" />
+	<ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" />
 </UserControl>

@@ -93,7 +93,10 @@
     <Compile Include="HubPage.xaml.cs">
       <DependentUpon>HubPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\ArtistListControl.xaml.cs">
+    <Compile Include="UserControls\ListControls\AlbumListControl.xaml.cs">
+      <DependentUpon>AlbumListControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ListControls\ArtistListControl.xaml.cs">
       <DependentUpon>ArtistListControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\LibraryControl.xaml.cs">
@@ -145,7 +148,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\ArtistListControl.xaml">
+    <Page Include="UserControls\ListControls\AlbumListControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UserControls\ListControls\ArtistListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

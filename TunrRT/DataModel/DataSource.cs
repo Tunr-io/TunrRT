@@ -114,18 +114,25 @@ namespace TunrRT.DataModel
 		public async Task Synchronize()
 		{
 			System.Diagnostics.Debug.WriteLine("Synchronizing with Tunr...");
-			using (var client = new HttpClient())
+			try
 			{
-				client.BaseAddress = new Uri(BASEURL);
-				client.DefaultRequestHeaders.Accept.Clear();
-				client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken.access_token);
-				var response = await client.GetAsync("api/Library");
-				var songs = await response.Content.ReadAsAsync<List<Song>>();
-				System.Diagnostics.Debug.WriteLine("Fetched " + songs.Count + " songs.");
-				await SqlLiteConnection.InsertOrReplaceAllAsync(songs);
-				// TODO: Remove songs that have been deleted from Tunr
-				System.Diagnostics.Debug.WriteLine("Database updated.");
+				using (var client = new HttpClient())
+				{
+					client.BaseAddress = new Uri(BASEURL);
+					client.DefaultRequestHeaders.Accept.Clear();
+					client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+					client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken.access_token);
+					var response = await client.GetAsync("api/Library");
+					var songs = await response.Content.ReadAsAsync<List<Song>>();
+					System.Diagnostics.Debug.WriteLine("Fetched " + songs.Count + " songs.");
+					await SqlLiteConnection.InsertOrReplaceAllAsync(songs);
+					// TODO: Remove songs that have been deleted from Tunr
+					System.Diagnostics.Debug.WriteLine("Database updated.");
+				}
+			}
+			catch (Exception)
+			{
+				System.Diagnostics.Debug.WriteLine("Failed to synchronize with Tunr.io.");
 			}
 		}
 
