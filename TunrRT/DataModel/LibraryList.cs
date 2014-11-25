@@ -48,5 +48,9 @@ namespace TunrRT.DataModel
 				return _Results;
 			}
 		}
+
+		public void SelectSong(Song s) {
+			DataSource.SelectFilter(s, FilteredPropertyName);
+		}
 	}
 }

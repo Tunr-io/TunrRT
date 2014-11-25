@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace TunrRT.DataModel.Models
 {
 	[Table("Songs")]
-	public class Song
+	public class Song 
 	{
 		[PrimaryKey,Unique]
 		public Guid? SongId { get; set; }
@@ -22,5 +22,23 @@ namespace TunrRT.DataModel.Models
 		public int? Year { get; set; }
 		public string Genre { get; set; }
 		public double? Length { get; set; }
+
+		public Song Clone()
+		{
+			return new Song()
+			{
+				SongId = SongId,
+				OwnerId = OwnerId,
+				SongMD5 = SongMD5,
+				Title = Title,
+				Artist = Artist,
+				Album = Album,
+				TrackNumber = TrackNumber,
+				DiscNumber = DiscNumber,
+				Year = Year,
+				Genre = Genre,
+				Length = Length
+			};
+		}
 	}
 }

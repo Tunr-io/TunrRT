@@ -44,7 +44,7 @@
 			</GridView>
 		</SemanticZoom.ZoomedOutView>
 		<SemanticZoom.ZoomedInView>
-			<ListView IsItemClickEnabled="True" ItemsSource="{Binding Source={StaticResource ArtistCollection}}">
+			<ListView IsItemClickEnabled="True" ItemsSource="{Binding Source={StaticResource ArtistCollection}}" ItemClick="ListView_ItemClick">
 				<ListView.GroupStyle>
 					<GroupStyle>
 						<GroupStyle.HeaderTemplate>

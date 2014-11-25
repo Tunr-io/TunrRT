@@ -32,6 +32,7 @@ namespace TunrRT.DataModel
     /// </summary>
     public class DataSource : INotifyPropertyChanged
     {
+		public readonly string[] FilterProperties = {"Artist", "Album", "Title"};
 		public const string BASEURL = "https://play.tunr.io";
 		private AuthenticationToken AuthToken;
 		private SQLiteAsyncConnection SqlLiteConnection;
@@ -63,6 +64,13 @@ namespace TunrRT.DataModel
 			BrowseLists = new ObservableCollection<LibraryList>();
 			BrowseLists.CollectionChanged += BrowseLists_CollectionChanged;
 			InitDb().GetAwaiter().GetResult();
+
+			BrowseLists.Add(new LibraryList(this)
+			{
+				FilteredPropertyName = FilterProperties[0],
+				FilterSong = new Song(),
+				ListName = "Music"
+			});
 		}
 
 		void BrowseLists_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -118,12 +126,6 @@ namespace TunrRT.DataModel
 				await SqlLiteConnection.InsertOrReplaceAllAsync(songs);
 				// TODO: Remove songs that have been deleted from Tunr
 				System.Diagnostics.Debug.WriteLine("Database updated.");
-				BrowseLists.Add(new LibraryList(this)
-				{
-					FilteredPropertyName = "",
-					FilterSong = new Song(),
-					ListName = "Music"
-				});
 			}
 		}
 
@@ -148,6 +150,26 @@ namespace TunrRT.DataModel
 
 			var matches = SqlLiteConnection.QueryAsync<Song>(sqlQuery, sqlParams).GetAwaiter().GetResult();
 			return matches;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="targetProperty"></param>
+		public void SelectFilter(Song target, string targetProperty)
+		{
+			var property = target.GetType().GetRuntimeProperties().Where(p => p.Name.ToLower() == targetProperty.ToLower()).FirstOrDefault();
+			var propertyValue = property.GetValue(target, null);
+			var newSongFilter = BrowseLists.Last().FilterSong.Clone();
+			property.SetValue(newSongFilter, propertyValue);
+			var nextList = new LibraryList(this)
+			{
+				FilteredPropertyName = FilterProperties[BrowseLists.Count],
+				FilterSong = newSongFilter,
+				ListName = (string)propertyValue
+			};
+			BrowseLists.Add(nextList);
 		}
 
 	}
