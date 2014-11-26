@@ -33,7 +33,7 @@
 			<ItemsControl Margin="12,2,0,16" ItemsSource="{Binding BrowseLists}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding ListName, Converter={StaticResource ToLowercaseConverter}}" Style="{StaticResource LibraryHeaderStyle}" />
+						<TextBlock Tapped="Header_Tapped" Text="{Binding ListName, Converter={StaticResource ToLowercaseConverter}}" Style="{StaticResource LibraryHeaderStyle}" />
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>

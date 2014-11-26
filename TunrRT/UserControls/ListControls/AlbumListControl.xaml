@@ -15,7 +15,7 @@
 		<local:AlbumListConverter x:Key="AlbumListConverter" />
 	</UserControl.Resources>
 
-	<GridView ItemsSource="{Binding Results, Converter={StaticResource AlbumListConverter}}">
+	<GridView IsItemClickEnabled="True" ItemsSource="{Binding Results, Converter={StaticResource AlbumListConverter}}" ItemClick="GridView_ItemClick">
 		<GridView.ItemTemplate>
 			<DataTemplate>
 				<Border Width="150" Height="150" Background="#FFC8C8C8">

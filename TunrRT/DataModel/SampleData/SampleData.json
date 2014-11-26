@@ -1,0 +1,25 @@
+{
+    "BrowseLists": [
+        {
+            "ListName": "Music",
+            "FilteredPropertyName": "Artist",
+            "Results": [
+                {
+                    "Album": "Wonderful Album",
+                    "Artist": "A Test Artist",
+                    "Title": "Test Track"
+                },
+                {
+                    "Artist": "Another Test Artist",
+                    "Album": "Wonderous Album",
+                    "Title": "Splendiferous Track"
+                },
+                {
+                    "Artist": "The Most Amazing Artist Ever",
+                    "Album": "Yet Another Amazing Album",
+                    "Title": "Yet Another Amazing Track"
+                }
+            ]
+        }
+    ]
+}

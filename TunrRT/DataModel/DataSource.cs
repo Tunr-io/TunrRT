@@ -179,5 +179,15 @@ namespace TunrRT.DataModel
 			BrowseLists.Add(nextList);
 		}
 
+		public void SelectList(LibraryList list)
+		{
+			var index = BrowseLists.IndexOf(list);
+			var toRemove = BrowseLists.Where(l => BrowseLists.IndexOf(l) > index).ToList();
+			foreach (var removeList in toRemove)
+			{
+				BrowseLists.Remove(removeList);
+			}
+		}
+
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using TunrRT.DataModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -22,6 +23,12 @@ namespace TunrRT.UserControls
 		public LibraryControl()
 		{
 			this.InitializeComponent();
+		}
+
+		private void Header_Tapped(object sender, TappedRoutedEventArgs e)
+		{
+			var sourceObject = ((FrameworkElement)sender).DataContext as LibraryList;
+			(DataContext as DataSource).SelectList(sourceObject);
 		}
 	}
 }

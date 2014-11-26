@@ -86,10 +86,14 @@
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
+    <Compile Include="DataModel\SampleData\DataSourceSampleData.cs" />
     <Compile Include="DataModel\LibraryList.cs" />
     <Compile Include="DataModel\Models\AuthenticationToken.cs" />
     <Compile Include="DataModel\Models\Song.cs" />
     <Compile Include="DataModel\DataSource.cs" />
+    <Compile Include="DataModel\SampleData\LibraryListSample.cs" />
+    <Compile Include="DataModel\SampleData\SampleTitleLibraryList.cs" />
+    <Compile Include="DataModel\SampleData\SampleArtistLibraryList.cs" />
     <Compile Include="HubPage.xaml.cs">
       <DependentUpon>HubPage.xaml</DependentUpon>
     </Compile>
@@ -112,6 +116,9 @@
       <DependentUpon>LibraryListControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\LibraryListTemplateSelector.cs" />
+    <Compile Include="UserControls\ListControls\TitleListControl.xaml.cs">
+      <DependentUpon>TitleListControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ValueConverters\ToLowercaseConverter.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -140,7 +147,7 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DataModel\SampleData.json" />
+    <Content Include="DataModel\SampleData\SampleData.json" />
     <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +174,10 @@
     <Page Include="UserControls\LibraryListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ListControls\TitleListControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>

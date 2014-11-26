@@ -13,6 +13,8 @@ namespace TunrRT.UserControls
 	{
 		public DataTemplate ArtistListTemplate { get; set; }
 		public DataTemplate AlbumListTemplate { get; set; }
+		public DataTemplate TitleListTemplate { get; set; }
+
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
 			var list = item as LibraryList;
@@ -23,8 +25,10 @@ namespace TunrRT.UserControls
 					return ArtistListTemplate;
 				case "album":
 					return AlbumListTemplate;
+				case "title":
+					return TitleListTemplate;
 			}
-			return ArtistListTemplate;
+			return TitleListTemplate;
 			
 		}
 		protected override DataTemplate SelectTemplateCore(object item)
