@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TunrRT.DataModel.Models
+namespace TunrLibrary.Models
 {
 	[Table("Songs")]
 	public class Song 
@@ -14,12 +14,17 @@ namespace TunrRT.DataModel.Models
 		public Guid? SongId { get; set; }
 		public Guid? OwnerId { get; set; }
 		public string SongMD5 { get; set; }
+		[Indexed]
 		public string Title { get; set; }
+		[Indexed]
 		public string Artist { get; set; }
+		[Indexed]
 		public string Album { get; set; }
 		public int? TrackNumber { get; set; }
 		public int? DiscNumber { get; set; }
+		[Indexed]
 		public int? Year { get; set; }
+		[Indexed]
 		public string Genre { get; set; }
 		public double? Length { get; set; }
 

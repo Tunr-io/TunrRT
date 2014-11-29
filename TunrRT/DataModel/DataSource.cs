@@ -13,6 +13,10 @@ using Windows.Storage;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using System.Reflection;
+using TunrLibrary.Models;
+using TunrLibrary;
+using Windows.Foundation.Collections;
+using Windows.Media.Playback;
 
 // The data model defined by this file serves as a representative example of a strongly-typed
 // model.  The property names chosen coincide with data bindings in the standard item templates.
@@ -36,6 +40,54 @@ namespace TunrRT.DataModel
 		public const string BASEURL = "https://play.tunr.io";
 		private AuthenticationToken AuthToken;
 		private SQLiteAsyncConnection SqlLiteConnection;
+		private bool _BackgroundTaskRunning = false;
+		/// <summary>
+		/// Gets the information about background task is running or not by reading the setting saved by background task
+		/// </summary>
+		private bool BackgroundTaskRunning
+		{
+			get
+			{
+				if (_BackgroundTaskRunning)
+					return true;
+
+				object value = ApplicationSettingsHelper.ReadResetSettingsValue(Constants.BackgroundTaskState);
+				if (value == null)
+				{
+					return false;
+				}
+				else
+				{
+					_BackgroundTaskRunning = ((String)value).Equals(Constants.BackgroundTaskRunning);
+					return _BackgroundTaskRunning;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Initialize Background Media Player Handlers and starts playback
+		/// </summary>
+		private void StartBackgroundAudioTask()
+		{
+			//AddMediaPlayerEventHandlers();
+			Task.Run(() =>
+			{
+				bool result = BackgroundTaskInitialized.WaitOne(2000);
+				//Send message to initiate playback
+				if (result == true)
+				{
+					var message = new ValueSet();
+					message.Add(Constants.StartPlayback, "0");
+					BackgroundMediaPlayer.SendMessageToBackground(message);
+				}
+				else
+				{
+					throw new Exception("Background Audio Task didn't start in expected time");
+				}
+			}
+			);
+			//backgroundtaskinitializationresult.Completed = new AsyncActionCompletedHandler(BackgroundTaskInitializationCompleted);
+		}
 
 		public ObservableCollection<LibraryList> BrowseLists { get; set; }
 
@@ -111,7 +163,7 @@ namespace TunrRT.DataModel
 			}
 		}
 
-		public async Task Synchronize()
+		public async void Synchronize()
 		{
 			System.Diagnostics.Debug.WriteLine("Synchronizing with Tunr...");
 			try
@@ -125,7 +177,7 @@ namespace TunrRT.DataModel
 					var response = await client.GetAsync("api/Library");
 					var songs = await response.Content.ReadAsAsync<List<Song>>();
 					System.Diagnostics.Debug.WriteLine("Fetched " + songs.Count + " songs.");
-					await SqlLiteConnection.InsertOrReplaceAllAsync(songs);
+					await LibraryManager.AddOrUpdateSongs(songs);
 					// TODO: Remove songs that have been deleted from Tunr
 					System.Diagnostics.Debug.WriteLine("Database updated.");
 				}
@@ -136,36 +188,20 @@ namespace TunrRT.DataModel
 			}
 		}
 
-		public List<Song> QueryFilteredSongs(Song targetFilter)
-		{
-			var props = targetFilter.GetType().GetRuntimeProperties();
-			var nonnull = props.Where(p => p.GetValue(targetFilter, null) != null).ToList();
-
-			string sqlQuery = "SELECT * FROM Songs ";
-			if (nonnull.Count > 0)
-			{
-				sqlQuery += " WHERE";
-			}
-			for (int i=0; i<nonnull.Count; i++) {
-				var prop = nonnull[i];
-				if (i > 0) {
-					sqlQuery += " AND";
-				}
-				sqlQuery += " " + prop.Name + " = ? ";
-			}
-			var sqlParams = nonnull.Select(p => p.GetValue(targetFilter, null)).ToArray<object>();
-
-			var matches = SqlLiteConnection.QueryAsync<Song>(sqlQuery, sqlParams).GetAwaiter().GetResult();
-			return matches;
-		}
+		
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="target"></param>
 		/// <param name="targetProperty"></param>
-		public void SelectFilter(Song target, string targetProperty)
+		public async void SelectFilter(Song target, string targetProperty)
 		{
+			if (targetProperty.ToLower() == "title")
+			{
+				await LibraryManager.AddSongToPlaylistAsync(target);
+				return;
+			}
 			var property = target.GetType().GetRuntimeProperties().Where(p => p.Name.ToLower() == targetProperty.ToLower()).FirstOrDefault();
 			var propertyValue = property.GetValue(target, null);
 			var newSongFilter = BrowseLists.Last().FilterSong.Clone();

@@ -15,7 +15,7 @@
 		<local:TitleListConverter x:Key="TitleListConverter" />
 	</UserControl.Resources>
 
-	<ListView ItemsSource="{Binding Results, Converter={StaticResource TitleListConverter}}">
+	<ListView IsItemClickEnabled="True" ItemClick="ListView_ItemClick" ItemsSource="{Binding Results, Converter={StaticResource TitleListConverter}}">
 		<ListView.ItemTemplate>
 			<DataTemplate>
 				<StackPanel Orientation="Horizontal">

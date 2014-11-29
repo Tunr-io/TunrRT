@@ -82,14 +82,15 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ApplicationSettingsHelper.cs" />
     <Compile Include="Common\NavigationHelper.cs" />
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="DataModel\SampleData\DataSourceSampleData.cs" />
     <Compile Include="DataModel\LibraryList.cs" />
     <Compile Include="DataModel\Models\AuthenticationToken.cs" />
-    <Compile Include="DataModel\Models\Song.cs" />
     <Compile Include="DataModel\DataSource.cs" />
     <Compile Include="DataModel\SampleData\LibraryListSample.cs" />
     <Compile Include="DataModel\SampleData\SampleTitleLibraryList.cs" />
@@ -110,8 +111,6 @@
       <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SQLite.cs" />
-    <Compile Include="SQLiteAsync.cs" />
     <Compile Include="UserControls\LibraryListControl.xaml.cs">
       <DependentUpon>LibraryListControl.xaml</DependentUpon>
     </Compile>
@@ -206,7 +205,16 @@
       <Name>SQLite for Windows Phone 8.1</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\TunrBackgroundAudioTask\TunrBackgroundAudioTask.csproj">
+      <Project>{56256866-52d4-4b5f-b2d3-d7560495febc}</Project>
+      <Name>TunrBackgroundAudioTask</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TunrLibrary\TunrLibrary.csproj">
+      <Project>{79e41232-ba75-4846-9083-06622648785e}</Project>
+      <Name>TunrLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>

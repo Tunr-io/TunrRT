@@ -68,7 +68,7 @@ namespace TunrRT
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
 			StatusBar statusBar = Windows.UI.ViewManagement.StatusBar.GetForCurrentView();
-			statusBar.HideAsync();
+			await statusBar.HideAsync();
 			(DataContext as DataSource).Synchronize();
         }
 

@@ -9,7 +9,7 @@
     mc:Ignorable="d"
     d:DesignHeight="800"
     d:DesignWidth="480"
-	d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:DataSource}, Path=BrowseLists[0]}">
+	d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData/SampleData.json, Type=data:DataSource}, Path=BrowseLists[0]}">
 	<UserControl.Resources>
 		<DataTemplate x:Key="ArtistListTemplate">
 			<local:ArtistListControl DataContext="{Binding}" />

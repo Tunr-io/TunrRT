@@ -5,14 +5,29 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using TunrRT.DataModel.Models;
+using TunrLibrary.Models;
+using TunrLibrary;
+using System.ComponentModel;
 
 namespace TunrRT.DataModel
 {
 	/// <summary>
 	/// This class exists to manage a filtered list of library items.
 	/// </summary>
-	public class LibraryList
+	public class LibraryList : INotifyPropertyChanged
 	{
+		// Implement INotifyPropertyChanged ...
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected void OnPropertyChanged(string name)
+		{
+			PropertyChangedEventHandler handler = PropertyChanged;
+			if (handler != null)
+			{
+				handler(this, new PropertyChangedEventArgs(name));
+			}
+		}
+
 		/// <summary>
 		/// The data source this library list is querying from
 		/// </summary>
@@ -37,18 +52,34 @@ namespace TunrRT.DataModel
 		{
 			this.DataSource = dataSource;
 		}
+
+		/// <summary>
+		/// Called to pull the latest list of results from the database for this list
+		/// </summary>
+		/// <returns></returns>
+		private async Task UpdateResults()
+		{
+			_Results = await LibraryManager.FetchMatchingSongs(FilterSong);
+			OnPropertyChanged("Results");
+		}
+
 		private List<Song> _Results;
 		public List<Song> Results
 		{
 			get
 			{
 				if (_Results == null) {
-					_Results = this.DataSource.QueryFilteredSongs(FilterSong);
+					_Results = new List<Song>();
+					UpdateResults();
 				}
 				return _Results;
 			}
 		}
 
+		/// <summary>
+		/// Selects an option from this filter list for further filtering by the datasource
+		/// </summary>
+		/// <param name="s">The target song that the user has selected</param>
 		public void SelectSong(Song s) {
 			DataSource.SelectFilter(s, FilteredPropertyName);
 		}
