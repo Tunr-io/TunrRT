@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TunrLibrary;
 using TunrLibrary.Models;
 using TunrRT;
 using Windows.ApplicationModel.Background;
@@ -32,12 +33,31 @@ namespace TunrBackgroundAudioTask
 	{
 
 		#region Private fields, properties
+		private static readonly string TUNRURL = "https://play.tunr.io";
 		private SystemMediaTransportControls Smtc;
 		private BackgroundTaskDeferral deferral; // Used to keep task alive
 		private ForegroundAppStatus foregroundAppState = ForegroundAppStatus.Unknown;
-		private Song CurrentSong;
 		private AutoResetEvent BackgroundTaskStarted = new AutoResetEvent(false);
 		private bool backgroundtaskrunning = false;
+		private Guid CurrentPlaylistId = Guid.Empty;
+		private Guid CurrentPlaylistItemId = Guid.Empty;
+		private Song CurrentSong;
+		private TimeSpan CurrentStartPosition = TimeSpan.FromSeconds(0);
+		private MediaPlayer _MediaPlayerInstance;
+		private MediaPlayer MediaPlayerInstance
+		{
+			get
+			{
+				if (_MediaPlayerInstance == null) { 
+					_MediaPlayerInstance = BackgroundMediaPlayer.Current;
+					_MediaPlayerInstance.MediaOpened += MediaPlayerInstance_MediaOpened;
+					_MediaPlayerInstance.MediaEnded += MediaPlayerInstance_MediaEnded;
+					_MediaPlayerInstance.CurrentStateChanged += MediaPlayerInstance_CurrentStateChanged;
+					_MediaPlayerInstance.MediaFailed += MediaPlayerInstance_MediaFailed;
+				}
+				return _MediaPlayerInstance;
+			}
+		}
 		#endregion
 
 		#region IBackgroundTask and IBackgroundTaskInstance Interface Members and handlers
@@ -112,8 +132,9 @@ namespace TunrBackgroundAudioTask
 			try
 			{
 				//save state
-				ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentTrack, Playlist.CurrentTrackName);
-				ApplicationSettingsHelper.SaveSettingsValue(Constants.Position, BackgroundMediaPlayer.Current.Position.ToString());
+				ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentPlaylistId, CurrentPlaylistId);
+				ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentPlaylistItemId, CurrentPlaylistItemId);
+				ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentStartPosition, BackgroundMediaPlayer.Current.Position.ToString());
 				ApplicationSettingsHelper.SaveSettingsValue(Constants.BackgroundTaskState, Constants.BackgroundTaskCancelled);
 				ApplicationSettingsHelper.SaveSettingsValue(Constants.AppState, Enum.GetName(typeof(ForegroundAppStatus), foregroundAppState));
 				backgroundtaskrunning = false;
@@ -140,7 +161,8 @@ namespace TunrBackgroundAudioTask
 		{
 			Smtc.PlaybackStatus = MediaPlaybackStatus.Playing;
 			Smtc.DisplayUpdater.Type = MediaPlaybackType.Music;
-			Smtc.DisplayUpdater.MusicProperties.Title = Playlist.CurrentTrackName;
+			Smtc.DisplayUpdater.MusicProperties.Title = CurrentSong.Title;
+			Smtc.DisplayUpdater.MusicProperties.Artist = CurrentSong.Artist;
 			Smtc.DisplayUpdater.Update();
 		}
 
@@ -213,29 +235,31 @@ namespace TunrBackgroundAudioTask
 		{
 			try
 			{
-				if (Playlist.CurrentTrackName == string.Empty)
+				if (CurrentPlaylistItemId == Guid.Empty)
 				{
 					//If the task was cancelled we would have saved the current track and its position. We will try playback from there
-					var currenttrackname = ApplicationSettingsHelper.ReadResetSettingsValue(Constants.CurrentTrack);
-					var currenttrackposition = ApplicationSettingsHelper.ReadResetSettingsValue(Constants.Position);
-					if (currenttrackname != null)
+					var playlistId = (ApplicationSettingsHelper.ReadResetSettingsValue(Constants.CurrentPlaylistId));
+					var playlistItemId = (ApplicationSettingsHelper.ReadResetSettingsValue(Constants.CurrentPlaylistItemId));
+					if (playlistId != null && playlistItemId != null)
 					{
-
-						if (currenttrackposition == null)
+						CurrentPlaylistId = new Guid((string)playlistId);
+						CurrentPlaylistItemId = new Guid((string)playlistItemId);
+						var currentPosition = ApplicationSettingsHelper.ReadResetSettingsValue(Constants.CurrentStartPosition);
+						if (currentPosition == null)
 						{
 							// play from start if we dont have position
-							Playlist.StartTrackAt((string)currenttrackname);
+							StartPlaylistItemAt(CurrentPlaylistItemId);
 						}
 						else
 						{
 							// play from exact position otherwise
-							Playlist.StartTrackAt((string)currenttrackname, TimeSpan.Parse((string)currenttrackposition));
+							StartPlaylistItemAt(CurrentPlaylistItemId, TimeSpan.Parse((string)currentPosition));
 						}
 					}
 					else
 					{
 						//If we dont have anything, play from beginning of playlist.
-						Playlist.PlayAllTracks(); //start playback
+						//Playlist.PlayAllTracks(); //start playback
 					}
 				}
 				else
@@ -255,7 +279,7 @@ namespace TunrBackgroundAudioTask
 		private void SkipToPrevious()
 		{
 			Smtc.PlaybackStatus = MediaPlaybackStatus.Changing;
-			Playlist.SkipToPrevious();
+			//Playlist.SkipToPrevious();
 		}
 
 		/// <summary>
@@ -264,9 +288,61 @@ namespace TunrBackgroundAudioTask
 		private void SkipToNext()
 		{
 			Smtc.PlaybackStatus = MediaPlaybackStatus.Changing;
-			Playlist.SkipToNext();
+			//Playlist.SkipToNext();
 		}
 
+		#endregion
+
+		#region MediaPlayer Event Handlers
+		/// <summary>
+		/// Handler for error event of Media Player
+		/// </summary>
+		void MediaPlayerInstance_MediaFailed(MediaPlayer sender, MediaPlayerFailedEventArgs args)
+		{
+			Debug.WriteLine("Failed with error code " + args.ExtendedErrorCode.ToString());
+		}
+
+		/// <summary>
+		/// Handler for state changed event of Media Player
+		/// </summary>
+		void MediaPlayerInstance_CurrentStateChanged(MediaPlayer sender, object args)
+		{
+			if (sender.CurrentState == MediaPlayerState.Playing && CurrentStartPosition != TimeSpan.FromSeconds(0))
+			{
+				// if the start position is other than 0, then set it now
+				sender.Position = CurrentStartPosition;
+				sender.Volume = 1.0;
+				CurrentStartPosition = TimeSpan.FromSeconds(0);
+				sender.PlaybackMediaMarkers.Clear();
+			}
+		}
+
+		/// <summary>
+		/// Handler for MediaPlayer Media Ended
+		/// </summary>
+		void MediaPlayerInstance_MediaEnded(MediaPlayer sender, object args)
+		{
+			// Skip to next...
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
+		/// Fired when MediaPlayer is ready to play the track
+		/// </summary>
+		void MediaPlayerInstance_MediaOpened(MediaPlayer sender, object args)
+		{
+			// wait for media to be ready
+			sender.Play();
+			Debug.WriteLine("New Track: " + CurrentSong.Title);
+			UpdateUVCOnNewTrack();
+			if (foregroundAppState == ForegroundAppStatus.Active)
+			{
+				//Message channel that can be used to send messages to foreground
+				ValueSet message = new ValueSet();
+				message.Add(Constants.Trackchanged, CurrentPlaylistItemId.ToString());
+				BackgroundMediaPlayer.SendMessageToForeground(message);
+			}
+		}
 		#endregion
 
 		#region Background Media Player Handlers
@@ -297,7 +373,8 @@ namespace TunrBackgroundAudioTask
 					case Constants.AppSuspended:
 						Debug.WriteLine("App suspending"); // App is suspended, you can save your task state at this point
 						foregroundAppState = ForegroundAppStatus.Suspended;
-						ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentTrack, Playlist.CurrentTrackName);
+						ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentPlaylistId, CurrentPlaylistId);
+						ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentPlaylistItemId, CurrentPlaylistItemId);
 						break;
 					case Constants.AppResumed:
 						Debug.WriteLine("App resuming"); // App is resumed, now subscribe to message channel
@@ -318,6 +395,33 @@ namespace TunrBackgroundAudioTask
 				}
 			}
 		}
+		#endregion
+
+		#region Playlist Commands
+
+		public async void StartPlaylistItemAt(Guid playlistItemId)
+		{
+			StartPlaylistItemAt(playlistItemId, TimeSpan.Zero);
+		}
+
+		/// <summary>
+		/// Starts a given track by finding its name and at desired position
+		/// </summary>
+		public async void StartPlaylistItemAt(Guid playlistItemId, TimeSpan position)
+		{
+			var song = await LibraryManager.FetchPlaylistItemSong(playlistItemId);
+			CurrentSong = song;
+
+			MediaPlayerInstance.AutoPlay = false;
+
+			// Set the start position, we set the position once the state changes to playing, 
+			// it can be possible for a fraction of second, playback can start before we are 
+			// able to seek to new start position
+			MediaPlayerInstance.Volume = 0;
+			CurrentStartPosition = position;
+			MediaPlayerInstance.SetUriSource(new Uri(TUNRURL + "/stream/" + song.SongId));
+		}
+
 		#endregion
 
 	}

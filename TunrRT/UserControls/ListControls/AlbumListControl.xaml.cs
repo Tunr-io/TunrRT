@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using TunrLibrary.Models;
 using TunrRT.DataModel;
 using TunrRT.DataModel.Models;
 using Windows.Foundation;

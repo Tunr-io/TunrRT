@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TunrLibrary.Models;
 using TunrRT.DataModel.Models;
 
 namespace TunrRT.DataModel

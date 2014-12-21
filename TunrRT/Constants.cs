@@ -11,7 +11,9 @@ namespace TunrRT
 	/// </summary>
 	class Constants
 	{
-		public const string CurrentTrack = "trackname";
+		public const string CurrentPlaylistId = "CurrentPlaylistId";
+		public const string CurrentPlaylistItemId = "CurrentPlaylistItemId";
+		public const string CurrentStartPosition = "CurrentStartPosition";
 		public const string BackgroundTaskStarted = "BackgroundTaskStarted";
 		public const string BackgroundTaskRunning = "BackgroundTaskRunning";
 		public const string BackgroundTaskCancelled = "BackgroundTaskCancelled";
@@ -19,7 +21,6 @@ namespace TunrRT
 		public const string AppResumed = "appresumed";
 		public const string StartPlayback = "startplayback";
 		public const string SkipNext = "skipnext";
-		public const string Position = "position";
 		public const string AppState = "appstate";
 		public const string BackgroundTaskState = "backgroundtaskstate";
 		public const string SkipPrevious = "skipprevious";

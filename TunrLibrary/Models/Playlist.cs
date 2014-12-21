@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 namespace TunrLibrary.Models
 {
 	[Table("Playlists")]
-	class Playlist
+	public class Playlist
 	{
 		[PrimaryKey, Unique]
-		public Guid? PlaylistId { get; set; }
+		public Guid PlaylistId { get; set; }
 		public string Name { get; set; }
 	}
 }

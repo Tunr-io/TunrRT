@@ -88,5 +88,28 @@ namespace TunrLibrary
 		{
 			await SqlLiteConnection.InsertAsync(new PlaylistItem() { PlaylistItemId = Guid.NewGuid(), Order = 0, SongId = (Guid)song.SongId });
 		}
+
+		/// <summary>
+		/// Retrieves a list of playlist items from the specified playlist
+		/// </summary>
+		/// <param name="playlistId">GUID of playlist to retrieve</param>
+		/// <returns>A list of playlist items</returns>
+		public static async Task<List<PlaylistItem>> FetchPlaylistItems(Guid playlistId)
+		{
+			return await SqlLiteConnection.Table<PlaylistItem>().Where(p => p.PlaylistId == playlistId).OrderBy(p => p.Order).ToListAsync();
+		}
+
+		/// <summary>
+		/// Fetches the song associated with the given playlist iten
+		/// </summary>
+		/// <param name="playlistItemId">GUID of playlist item with which to find the song</param>
+		/// <returns>Song object associated with playlist item</returns>
+		public static async Task<Song> FetchPlaylistItemSong(Guid playlistItemId)
+		{
+			// HACK : this should be a join query, but I'm lazy right now
+			var playlistItem = await SqlLiteConnection.Table<PlaylistItem>().Where(p => p.PlaylistItemId == playlistItemId).FirstOrDefaultAsync();
+			var song = await SqlLiteConnection.Table<Song>().Where(s => s.SongId == playlistItem.SongId).FirstOrDefaultAsync();
+			return song;
+		}
 	}
 }
