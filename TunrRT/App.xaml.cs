@@ -28,6 +28,14 @@ namespace TunrRT
     public sealed partial class App : Application
     {
         private TransitionCollection transitions;
+		private BackgroundAudioHandler _BackgroundAudioHandler = new BackgroundAudioHandler();
+		public BackgroundAudioHandler BackgroundAudioHandler
+		{
+			get
+			{
+				return this._BackgroundAudioHandler;
+			}
+		}
 		private DataSource _DataSource = new DataSource();
 		public DataSource DataSource
 		{

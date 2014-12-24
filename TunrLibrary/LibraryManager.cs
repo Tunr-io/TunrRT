@@ -86,7 +86,7 @@ namespace TunrLibrary
 		/// <returns></returns>
 		public static async Task AddSongToPlaylistAsync(Song song)
 		{
-			await SqlLiteConnection.InsertAsync(new PlaylistItem() { PlaylistItemId = Guid.NewGuid(), Order = 0, SongId = (Guid)song.SongId });
+			await SqlLiteConnection.InsertAsync(new PlaylistItem() { PlaylistId = Guid.Empty, PlaylistItemId = Guid.NewGuid(), Order = 0, SongId = (Guid)song.SongId });
 		}
 
 		/// <summary>

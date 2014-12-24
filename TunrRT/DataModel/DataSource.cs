@@ -17,6 +17,7 @@ using TunrLibrary.Models;
 using TunrLibrary;
 using Windows.Foundation.Collections;
 using Windows.Media.Playback;
+using System.Threading;
 
 // The data model defined by this file serves as a representative example of a strongly-typed
 // model.  The property names chosen coincide with data bindings in the standard item templates.
@@ -40,54 +41,6 @@ namespace TunrRT.DataModel
 		public const string BASEURL = "https://play.tunr.io";
 		private AuthenticationToken AuthToken;
 		private SQLiteAsyncConnection SqlLiteConnection;
-		private bool _BackgroundTaskRunning = false;
-		/// <summary>
-		/// Gets the information about background task is running or not by reading the setting saved by background task
-		/// </summary>
-		private bool BackgroundTaskRunning
-		{
-			get
-			{
-				if (_BackgroundTaskRunning)
-					return true;
-
-				object value = ApplicationSettingsHelper.ReadResetSettingsValue(Constants.BackgroundTaskState);
-				if (value == null)
-				{
-					return false;
-				}
-				else
-				{
-					_BackgroundTaskRunning = ((String)value).Equals(Constants.BackgroundTaskRunning);
-					return _BackgroundTaskRunning;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Initialize Background Media Player Handlers and starts playback
-		/// </summary>
-		private void StartBackgroundAudioTask()
-		{
-			//AddMediaPlayerEventHandlers();
-			Task.Run(() =>
-			{
-				bool result = BackgroundTaskInitialized.WaitOne(2000);
-				//Send message to initiate playback
-				if (result == true)
-				{
-					var message = new ValueSet();
-					message.Add(Constants.StartPlayback, "0");
-					BackgroundMediaPlayer.SendMessageToBackground(message);
-				}
-				else
-				{
-					throw new Exception("Background Audio Task didn't start in expected time");
-				}
-			}
-			);
-			//backgroundtaskinitializationresult.Completed = new AsyncActionCompletedHandler(BackgroundTaskInitializationCompleted);
-		}
 
 		public ObservableCollection<LibraryList> BrowseLists { get; set; }
 
@@ -200,6 +153,7 @@ namespace TunrRT.DataModel
 			if (targetProperty.ToLower() == "title")
 			{
 				await LibraryManager.AddSongToPlaylistAsync(target);
+				((App.Current) as App).BackgroundAudioHandler.Play();
 				return;
 			}
 			var property = target.GetType().GetRuntimeProperties().Where(p => p.Name.ToLower() == targetProperty.ToLower()).FirstOrDefault();

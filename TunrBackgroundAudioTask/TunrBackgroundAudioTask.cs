@@ -231,7 +231,7 @@ namespace TunrBackgroundAudioTask
 		/// Start playlist and change UVC state
 		/// </summary>
 
-		private void StartPlayback()
+		private async void StartPlayback()
 		{
 			try
 			{
@@ -260,6 +260,9 @@ namespace TunrBackgroundAudioTask
 					{
 						//If we dont have anything, play from beginning of playlist.
 						//Playlist.PlayAllTracks(); //start playback
+						var items = await LibraryManager.FetchPlaylistItems(Guid.Empty);
+						var firstItem = items.FirstOrDefault();
+						StartPlaylistItemAt(firstItem.PlaylistItemId);
 					}
 				}
 				else
@@ -332,6 +335,7 @@ namespace TunrBackgroundAudioTask
 		void MediaPlayerInstance_MediaOpened(MediaPlayer sender, object args)
 		{
 			// wait for media to be ready
+			sender.Volume = 1;
 			sender.Play();
 			Debug.WriteLine("New Track: " + CurrentSong.Title);
 			UpdateUVCOnNewTrack();
@@ -419,6 +423,7 @@ namespace TunrBackgroundAudioTask
 			// able to seek to new start position
 			MediaPlayerInstance.Volume = 0;
 			CurrentStartPosition = position;
+			Debug.WriteLine(TUNRURL + "/stream/" + song.SongId);
 			MediaPlayerInstance.SetUriSource(new Uri(TUNRURL + "/stream/" + song.SongId));
 		}
 
