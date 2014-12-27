@@ -68,7 +68,6 @@ namespace TunrRT.DataModel
 		{
 			BrowseLists = new ObservableCollection<LibraryList>();
 			BrowseLists.CollectionChanged += BrowseLists_CollectionChanged;
-			InitDb().GetAwaiter().GetResult();
 
 			BrowseLists.Add(new LibraryList(this)
 			{
@@ -81,12 +80,6 @@ namespace TunrRT.DataModel
 		void BrowseLists_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
 			OnPropertyChanged("ActiveList");
-		}
-
-		public async Task InitDb()
-		{
-			SqlLiteConnection = new SQLiteAsyncConnection("Library.db");
-			await SqlLiteConnection.CreateTableAsync<Song>();
 		}
 
         public async Task SetCredentialsAsync(string email, string password)
@@ -133,6 +126,10 @@ namespace TunrRT.DataModel
 					await LibraryManager.AddOrUpdateSongs(songs);
 					// TODO: Remove songs that have been deleted from Tunr
 					System.Diagnostics.Debug.WriteLine("Database updated.");
+					foreach (var list in BrowseLists)
+					{
+						list.UpdateResults();
+					}
 				}
 			}
 			catch (Exception)

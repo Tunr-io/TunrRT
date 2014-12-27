@@ -80,13 +80,29 @@ namespace TunrLibrary
 		}
 
 		/// <summary>
-		/// Adds the specified song to a playlist
+		/// Adds the specified song to the end of a playlist
 		/// </summary>
 		/// <param name="song">Song to add</param>
 		/// <returns></returns>
 		public static async Task AddSongToPlaylistAsync(Song song)
 		{
-			await SqlLiteConnection.InsertAsync(new PlaylistItem() { PlaylistId = Guid.Empty, PlaylistItemId = Guid.NewGuid(), Order = 0, SongId = (Guid)song.SongId });
+			var lastItem = await SqlLiteConnection.Table<PlaylistItem>().Where(p => p.PlaylistId == Guid.Empty).OrderByDescending(p => p.Order).Take(1).FirstOrDefaultAsync();
+			int order = 0;
+			if (lastItem != null)
+			{
+				order = lastItem.Order + 1;
+			}
+			await SqlLiteConnection.InsertAsync(new PlaylistItem() { PlaylistId = Guid.Empty, PlaylistItemId = Guid.NewGuid(), Order = order, SongId = (Guid)song.SongId });
+		}
+
+		/// <summary>
+		/// Returns the specified playlist item
+		/// </summary>
+		/// <param name="playlistItemId">ID of the requested playlist item</param>
+		/// <returns></returns>
+		public static async Task<PlaylistItem> FetchPlaylistItem(Guid playlistItemId)
+		{
+			return await SqlLiteConnection.Table<PlaylistItem>().Where(p => p.PlaylistItemId == playlistItemId).FirstOrDefaultAsync();
 		}
 
 		/// <summary>
@@ -100,7 +116,7 @@ namespace TunrLibrary
 		}
 
 		/// <summary>
-		/// Fetches the song associated with the given playlist iten
+		/// Fetches the song associated with the given playlist item
 		/// </summary>
 		/// <param name="playlistItemId">GUID of playlist item with which to find the song</param>
 		/// <returns>Song object associated with playlist item</returns>

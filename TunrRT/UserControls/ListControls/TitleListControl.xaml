@@ -19,8 +19,8 @@
 		<ListView.ItemTemplate>
 			<DataTemplate>
 				<StackPanel Orientation="Horizontal">
-					<TextBlock Text="{Binding TrackNumber}" FontFamily="Segoe WP" FontWeight="Black" Foreground="Black" FontSize="20" Margin="0,0,0,4" VerticalAlignment="Bottom" />
-					<TextBlock Text="{Binding Title}" FontFamily="Segoe WP" FontWeight="SemiLight" Foreground="Black" FontSize="30" Margin="6,0,0,0" VerticalAlignment="Bottom"/>
+					<TextBlock Text="{Binding TrackNumber}" Width="32" FontFamily="Segoe WP" FontWeight="Black" Foreground="Black" FontSize="20" Margin="0,0,0,4" VerticalAlignment="Bottom" />
+					<TextBlock Text="{Binding Title}" FontFamily="Segoe WP" FontWeight="Normal" Foreground="Black" FontSize="28" Margin="6,0,0,0" VerticalAlignment="Bottom"/>
 				</StackPanel>
 			</DataTemplate>
 		</ListView.ItemTemplate>

@@ -11,7 +11,6 @@ namespace TunrRT
 	/// </summary>
 	class Constants
 	{
-		public const string CurrentPlaylistId = "CurrentPlaylistId";
 		public const string CurrentPlaylistItemId = "CurrentPlaylistItemId";
 		public const string CurrentStartPosition = "CurrentStartPosition";
 		public const string BackgroundTaskStarted = "BackgroundTaskStarted";

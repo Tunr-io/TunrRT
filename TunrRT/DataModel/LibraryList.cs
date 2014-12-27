@@ -57,7 +57,7 @@ namespace TunrRT.DataModel
 		/// Called to pull the latest list of results from the database for this list
 		/// </summary>
 		/// <returns></returns>
-		private async Task UpdateResults()
+		public async Task UpdateResults()
 		{
 			_Results = await LibraryManager.FetchMatchingSongs(FilterSong);
 			OnPropertyChanged("Results");

@@ -94,6 +94,7 @@
     <Compile Include="DataModel\Models\AuthenticationToken.cs" />
     <Compile Include="DataModel\DataSource.cs" />
     <Compile Include="DataModel\SampleData\LibraryListSample.cs" />
+    <Compile Include="DataModel\SampleData\SampleAlbumLibraryList.cs" />
     <Compile Include="DataModel\SampleData\SampleTitleLibraryList.cs" />
     <Compile Include="DataModel\SampleData\SampleArtistLibraryList.cs" />
     <Compile Include="HubPage.xaml.cs">
