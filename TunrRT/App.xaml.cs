@@ -17,6 +17,9 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using TunrRT.DataModel;
+using Windows.Storage;
+using Newtonsoft.Json;
+using TunrRT.DataModel.Models;
 
 // The Hub Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -36,7 +39,7 @@ namespace TunrRT
 				return this._BackgroundAudioHandler;
 			}
 		}
-		private DataSource _DataSource = new DataSource();
+		private DataSource _DataSource;
 		public DataSource DataSource
 		{
 			get
@@ -53,6 +56,13 @@ namespace TunrRT
         {
             this.InitializeComponent();
             this.Suspending += this.OnSuspending;
+			// Set auth if we've authenticated in the past...
+			AuthenticationToken auth = null;
+			if (ApplicationData.Current.LocalSettings.Values.ContainsKey("Authentication"))
+			{
+				auth = JsonConvert.DeserializeObject<AuthenticationToken>((string)ApplicationData.Current.LocalSettings.Values["Authentication"]);
+			}
+			this._DataSource = new DataSource(auth);
         }
 
         /// <summary>
@@ -121,10 +131,21 @@ namespace TunrRT
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter.
-                if (!rootFrame.Navigate(typeof(LoginPage), e.Arguments))
-                {
-                    throw new Exception("Failed to create initial page");
-                }
+				if ((App.Current as App).DataSource.IsAuthenticated())
+				{
+					if (!rootFrame.Navigate(typeof(HubPage), e.Arguments))
+					{
+						throw new Exception("Failed to create initial page");
+					}
+				}
+				else
+				{
+					if (!rootFrame.Navigate(typeof(LoginPage), e.Arguments))
+					{
+						throw new Exception("Failed to create initial page");
+					}
+				}
+                
             }
 
             // Ensure the current window is active.

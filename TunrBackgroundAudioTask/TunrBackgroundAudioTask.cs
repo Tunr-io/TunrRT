@@ -240,7 +240,7 @@ namespace TunrBackgroundAudioTask
 					var playlistItemId = (ApplicationSettingsHelper.ReadResetSettingsValue(Constants.CurrentPlaylistItemId));
 					if (playlistItemId != null)
 					{
-						playlistItem = await LibraryManager.FetchPlaylistItem(new Guid((string)playlistItemId));
+						playlistItem = await LibraryManager.FetchPlaylistItem((Guid)playlistItemId);
 					}
 					if (playlistItem != null)
 					{
@@ -301,10 +301,17 @@ namespace TunrBackgroundAudioTask
 			Smtc.PlaybackStatus = MediaPlaybackStatus.Changing;
 			var list = await LibraryManager.FetchPlaylistItems(CurrentPlaylistItem.PlaylistId);
 			var index = list.FindIndex(p => p.PlaylistItemId == CurrentPlaylistItem.PlaylistItemId);
-			var nextSong = list[(index + 1) % list.Count];
-			CurrentPlaylistItem = nextSong;
-			StartPlaylistItemAt(nextSong);
-			//Playlist.SkipToNext();
+			if (list.Count <= 0 || index < 0)
+			{
+				Smtc.PlaybackStatus = MediaPlaybackStatus.Stopped;
+				Smtc.DisplayUpdater.Update();
+			}
+			else
+			{
+				var nextSong = list[(index + 1) % list.Count];
+				CurrentPlaylistItem = nextSong;
+				StartPlaylistItemAt(nextSong);
+			}
 		}
 
 		#endregion

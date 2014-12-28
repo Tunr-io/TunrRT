@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
@@ -49,7 +51,8 @@ namespace TunrRT
 			TextBoxPassword.IsEnabled = false;
 			var app = (App.Current) as App;
 			try {
-				await app.DataSource.SetCredentialsAsync(TextBoxEmail.Text, TextBoxPassword.Password);
+				var token = await app.DataSource.SetCredentialsAsync(TextBoxEmail.Text, TextBoxPassword.Password);
+				ApplicationData.Current.LocalSettings.Values["Authentication"] = JsonConvert.SerializeObject(token);
 				status.ProgressIndicator.HideAsync();
 				TextBoxEmail.IsEnabled = true;
 				TextBoxPassword.IsEnabled = true;

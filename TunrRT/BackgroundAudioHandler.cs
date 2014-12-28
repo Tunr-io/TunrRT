@@ -154,6 +154,12 @@ namespace TunrRT
 				StartBackgroundAudioTask();
 			}
 		}
+
+		public void Stop()
+		{
+			Debug.WriteLine("Stopping...");
+			BackgroundMediaPlayer.Shutdown();
+		}
 		#endregion
 	}
 }

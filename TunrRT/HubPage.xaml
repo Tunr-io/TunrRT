@@ -10,7 +10,7 @@
     d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:DataSource}}"
     mc:Ignorable="d">
 
-    <Page.Resources>
+	<Page.Resources>
 		<DataTemplate x:Key="HubSectionHeaderTemplate">
 			<TextBlock Margin="0,0,0,-9.5" Text="{Binding}"/>
 		</DataTemplate>
@@ -157,14 +157,14 @@
 	</Page.Resources>
 
 	<Grid x:Name="LayoutRoot">
-		<Hub x:Name="Hub" x:Uid="Hub">
-			<HubSection x:Uid="HubLibrarySection" Padding="0,9,0,0" Background="White" Style="{StaticResource HubLibrarySectionStyle}">
+		<Hub x:Name="Hub" x:Uid="Hub" SectionsInViewChanged="Hub_SectionsInViewChanged">
+			<HubSection Tag="0" x:Uid="HubLibrarySection" Padding="0,9,0,0" Background="White" Style="{StaticResource HubLibrarySectionStyle}">
 				<DataTemplate>
 					<controls:LibraryControl DataContext="{Binding}" />
 				</DataTemplate>
 			</HubSection>
 
-			<HubSection x:Uid="HubPlaylistSection" DataContext="{Binding Groups[2]}">
+			<HubSection Tag="1" x:Uid="HubPlaylistSection" DataContext="{Binding Groups[2]}">
 				<HubSection.Header>
 					<TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="48" Text="playlist"/>
 				</HubSection.Header>
@@ -188,7 +188,7 @@
 				</DataTemplate>
 			</HubSection>
 
-			<HubSection x:Uid="HubNowPlayingSection" Style="{StaticResource HubLibrarySectionStyle}">
+			<HubSection Tag="2" x:Uid="HubNowPlayingSection" Style="{StaticResource HubLibrarySectionStyle}">
 				<DataTemplate>
 					<StackPanel Orientation="Vertical" Margin="0,24,0,0">
 						<TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="SONG TITLE" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
@@ -211,5 +211,18 @@
 				</DataTemplate>
 			</HubSection>
 		</Hub>
-    </Grid>
+	</Grid>
+	<Page.BottomAppBar>
+		<CommandBar x:Name="CommandBar">
+			<CommandBar.PrimaryCommands>
+				<AppBarButton Name="AppBarSearch" Label="search" Icon="Find"></AppBarButton>
+				<AppBarButton Name="AppBarClearList" Label="clear playlist" Icon="Clear" Click="AppBarClearList_Click"></AppBarButton>
+				<AppBarButton Name="AppBarRepeat" Label="repeat" Icon="RepeatAll"></AppBarButton>
+				<AppBarButton Name="AppBarShuffle" Label="shuffle" Icon="Shuffle"></AppBarButton>
+			</CommandBar.PrimaryCommands>
+			<CommandBar.SecondaryCommands>
+				<AppBarButton Name="AppBarLogout" Label="log out"></AppBarButton>
+			</CommandBar.SecondaryCommands>
+		</CommandBar>
+	</Page.BottomAppBar>
 </Page>

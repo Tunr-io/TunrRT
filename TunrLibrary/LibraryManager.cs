@@ -116,6 +116,16 @@ namespace TunrLibrary
 		}
 
 		/// <summary>
+		/// Clears the specified playlist of any items
+		/// </summary>
+		/// <param name="playlistId">ID of playlist to clear of items</param>
+		/// <returns></returns>
+		public static async Task ClearPlaylist(Guid playlistId)
+		{
+			await SqlLiteConnection.ExecuteAsync("delete from \"PlaylistItems\" where \"PlaylistId\" = ?", playlistId);
+		}
+
+		/// <summary>
 		/// Fetches the song associated with the given playlist item
 		/// </summary>
 		/// <param name="playlistItemId">GUID of playlist item with which to find the song</param>

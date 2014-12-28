@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TunrRT.DataModel.Models
 {
-	class AuthenticationToken
+	public class AuthenticationToken
 	{
 		public Guid Id { get; set; }
 		public string access_token { get; set; }

@@ -64,10 +64,12 @@ namespace TunrRT.DataModel
 			}
 		}
 
-		public DataSource()
+		public DataSource(AuthenticationToken auth = null)
 		{
 			BrowseLists = new ObservableCollection<LibraryList>();
 			BrowseLists.CollectionChanged += BrowseLists_CollectionChanged;
+
+			AuthToken = auth;
 
 			BrowseLists.Add(new LibraryList(this)
 			{
@@ -81,8 +83,18 @@ namespace TunrRT.DataModel
 		{
 			OnPropertyChanged("ActiveList");
 		}
+		
+		/// <summary>
+		/// Checks to see that we have a valid authentication token set
+		/// </summary>
+		/// <returns>True on authenticated, false otherwise</returns>
+		public bool IsAuthenticated()
+		{
+			// TODO: Actually verify that this token hasn't expired, etc.
+			return (AuthToken != null);
+		}
 
-        public async Task SetCredentialsAsync(string email, string password)
+        public async Task<AuthenticationToken> SetCredentialsAsync(string email, string password)
 		{
 			using (var client = new HttpClient())
 			{
@@ -101,6 +113,7 @@ namespace TunrRT.DataModel
 				{
 					var auth = await response.Content.ReadAsAsync<AuthenticationToken>();
 					AuthToken = auth;
+					return auth;
 				}
 				else
 				{

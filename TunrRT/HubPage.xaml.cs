@@ -19,6 +19,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using Windows.Media.Playback;
+using TunrLibrary;
 
 // The Hub Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -114,6 +116,37 @@ namespace TunrRT
 		private void PlayButton_Click(object sender, RoutedEventArgs e)
 		{
 			(App.Current as App).BackgroundAudioHandler.Play();
+		}
+
+		private void Hub_SectionsInViewChanged(object sender, SectionsInViewChangedEventArgs e)
+		{
+			switch ((string)Hub.SectionsInView[0].Tag)
+			{
+				case "0":
+					AppBarSearch.Visibility = Visibility.Visible;
+					AppBarClearList.Visibility = Visibility.Collapsed;
+					AppBarRepeat.Visibility = Visibility.Collapsed;
+					AppBarShuffle.Visibility = Visibility.Collapsed;
+					break;
+				case "1":
+					AppBarSearch.Visibility = Visibility.Collapsed;
+					AppBarClearList.Visibility = Visibility.Visible;
+					AppBarRepeat.Visibility = Visibility.Collapsed;
+					AppBarShuffle.Visibility = Visibility.Collapsed;
+					break;
+				case "2":
+					AppBarSearch.Visibility = Visibility.Collapsed;
+					AppBarClearList.Visibility = Visibility.Collapsed;
+					AppBarRepeat.Visibility = Visibility.Visible;
+					AppBarShuffle.Visibility = Visibility.Visible;
+					break;
+			}
+		}
+
+		private async void AppBarClearList_Click(object sender, RoutedEventArgs e)
+		{
+			await LibraryManager.ClearPlaylist(Guid.Empty);
+			System.Diagnostics.Debug.WriteLine("Playlist cleared.");
 		}
     }
 }
