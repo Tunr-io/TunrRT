@@ -110,5 +110,10 @@ namespace TunrRT
         }
 
         #endregion
+
+		private void PlayButton_Click(object sender, RoutedEventArgs e)
+		{
+			(App.Current as App).BackgroundAudioHandler.Play();
+		}
     }
 }

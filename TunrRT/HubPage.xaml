@@ -195,9 +195,17 @@
 						<TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="THE ARTIST NAME" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
 						<Rectangle HorizontalAlignment="Left" Width="240" Height="240" Margin="0,8,0,8" Fill="#FF202020" />
 						<StackPanel Orientation="Horizontal">
-							<Button Style="{StaticResource ButtonNowPlayingStyle}" />
-							<Button Style="{StaticResource ButtonNowPlayingStyle}" />
-							<Button Style="{StaticResource ButtonNowPlayingStyle}" />
+							<Button x:Name="PrevButton" Style="{StaticResource ButtonNowPlayingStyle}">
+								<Path Data="F1 M 0,0 L 0,76.8 -48,38.4 z
+									M -48,38.4 L -48,76.8 -76.8,76.8 -76.8,0 -48,0 z" Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
+							</Button>
+							<Button x:Name="PlayButton" Style="{StaticResource ButtonNowPlayingStyle}" Click="PlayButton_Click">
+								<Path Data="F1 M 91.68,53.28 L 14.88,91.68 14.88,14.88 z"  Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
+							</Button>
+							<Button x:Name="NextButton" Style="{StaticResource ButtonNowPlayingStyle}">
+								<Path Data="F1 M 0,0 L 0,76.8 48,38.4 z
+		M 48,38.4 L 48,76.8 76.8,76.8 76.8,0 48,0 z" Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
+							</Button>
 						</StackPanel>
 					</StackPanel>
 				</DataTemplate>

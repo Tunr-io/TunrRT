@@ -18,7 +18,7 @@
 	<GridView IsItemClickEnabled="True" ItemsSource="{Binding Results, Converter={StaticResource AlbumListConverter}}" ItemClick="GridView_ItemClick">
 		<GridView.ItemTemplate>
 			<DataTemplate>
-				<Border Margin="4" Width="150" Height="150" Background="#FFC8C8C8">
+				<Border Margin="4" Width="120" Height="120" Background="#FFC8C8C8">
 					<TextBlock Text="{Binding Album}" />
 				</Border>
 			</DataTemplate>

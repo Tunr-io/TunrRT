@@ -5,7 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
 using Windows.UI.Popups;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -39,15 +41,27 @@ namespace TunrRT
 
 		private async void AppBarLogin_Click(object sender, RoutedEventArgs e)
 		{
+			StatusBar status = StatusBar.GetForCurrentView();
+			status.ForegroundColor = Colors.Black;
+			status.ProgressIndicator.Text = "Logging in...";
+			status.ProgressIndicator.ShowAsync();
+			TextBoxEmail.IsEnabled = false;
+			TextBoxPassword.IsEnabled = false;
 			var app = (App.Current) as App;
 			try {
 				await app.DataSource.SetCredentialsAsync(TextBoxEmail.Text, TextBoxPassword.Password);
+				status.ProgressIndicator.HideAsync();
+				TextBoxEmail.IsEnabled = true;
+				TextBoxPassword.IsEnabled = true;
 				Frame.Navigate(typeof(HubPage));
 				Frame.BackStack.Clear();
 				return;
 			}
 			catch (Exception)
 			{}
+			status.ProgressIndicator.HideAsync();
+			TextBoxEmail.IsEnabled = true;
+			TextBoxPassword.IsEnabled = true;
 			MessageDialog messageDialog = new MessageDialog("Could not log you in. Make sure your credentials are correct, then try again.", "Authentication failure");
 			await messageDialog.ShowAsync();
 		}
