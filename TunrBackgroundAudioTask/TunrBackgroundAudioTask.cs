@@ -159,8 +159,8 @@ namespace TunrBackgroundAudioTask
 		{
 			Smtc.PlaybackStatus = MediaPlaybackStatus.Playing;
 			Smtc.DisplayUpdater.Type = MediaPlaybackType.Music;
-			Smtc.DisplayUpdater.MusicProperties.Title = CurrentSong.Title;
-			Smtc.DisplayUpdater.MusicProperties.Artist = CurrentSong.Artist;
+			Smtc.DisplayUpdater.MusicProperties.Title = CurrentSong.TagTitle;
+			Smtc.DisplayUpdater.MusicProperties.Artist = CurrentSong.TagPerformers.FirstOrDefault();
 			Smtc.DisplayUpdater.Update();
 		}
 
@@ -284,7 +284,7 @@ namespace TunrBackgroundAudioTask
 		private async void SkipToPrevious()
 		{
 			Smtc.PlaybackStatus = MediaPlaybackStatus.Changing;
-			var list = await LibraryManager.FetchPlaylistItems(CurrentPlaylistItem.PlaylistId);
+			var list = await LibraryManager.FetchPlaylistItems(CurrentPlaylistItem.PlaylistFK);
 			var index = list.FindIndex(p => p.PlaylistItemId == CurrentPlaylistItem.PlaylistItemId);
 			var newIndex = ((index - 1) % list.Count + list.Count) % list.Count;
 			var nextSong = list[newIndex];
@@ -299,7 +299,7 @@ namespace TunrBackgroundAudioTask
 		private async void SkipToNext()
 		{
 			Smtc.PlaybackStatus = MediaPlaybackStatus.Changing;
-			var list = await LibraryManager.FetchPlaylistItems(CurrentPlaylistItem.PlaylistId);
+			var list = await LibraryManager.FetchPlaylistItems(CurrentPlaylistItem.PlaylistFK);
 			var index = list.FindIndex(p => p.PlaylistItemId == CurrentPlaylistItem.PlaylistItemId);
 			if (list.Count <= 0 || index < 0)
 			{
@@ -357,7 +357,7 @@ namespace TunrBackgroundAudioTask
 			// wait for media to be ready
 			sender.Volume = 1;
 			sender.Play();
-			Debug.WriteLine("New Track: " + CurrentSong.Title);
+			Debug.WriteLine("New Track: " + CurrentSong.TagTitle);
 			UpdateUVCOnNewTrack();
 			if (foregroundAppState == ForegroundAppStatus.Active)
 			{

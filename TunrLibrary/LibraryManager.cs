@@ -1,11 +1,11 @@
-﻿using SQLite;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TunrLibrary.Models;
 using System.Reflection;
+using Lex.Db;
 
 namespace TunrLibrary
 {
@@ -14,28 +14,38 @@ namespace TunrLibrary
 	/// </summary>
 	public static class LibraryManager
 	{
-		private static readonly SQLiteAsyncConnection SqlLiteConnection;
+		private static readonly DbInstance LexDb;
+
+		public static DbTable<Song> Songs { get { return _songs ?? (_songs = LexDb.Table<Song>()); } }
+		static DbTable<Song> _songs;
+
+		public static DbTable<Playlist> Playlists { get { return _playlists ?? (_playlists = LexDb.Table<Playlist>()); } }
+		static DbTable<Playlist> _playlists;
+
+		public static DbTable<PlaylistItem> PlaylistItems { get { return _playlistItems ?? (_playlistItems = LexDb.Table<PlaylistItem>()); } }
+		static DbTable<PlaylistItem> _playlistItems;
 
 		/// <summary>
 		/// Initialize the connection to the SQLite database, creating tables if they don't exist.
 		/// </summary>
 		static LibraryManager()
 		{
-			// Initialize the SQLite DB
-			SqlLiteConnection = new SQLiteAsyncConnection("Tunr.db");
-			SqlLiteConnection.CreateTableAsync<Song>();
-			SqlLiteConnection.CreateTableAsync<Playlist>();
-			SqlLiteConnection.CreateTableAsync<PlaylistItem>();
-		}
+			// Initialize LexDb
+			LexDb = new DbInstance("TunrData");
+			LexDb.Map<Song>()
+				.Automap(s => s.SongId)
+				//.WithIndex("TagPerformers", s => s.TagPerformers)
+				.WithIndex("TagAlbum", s => s.TagAlbum)
+				.WithIndex("TagTitle", s => s.TagTitle)
+				//.WithIndex("TagGenres", s => s.TagGenres)
+				.WithIndex("TagYear", s => s.TagYear);
+			LexDb.Map<Playlist>()
+				.Automap(p => p.PlaylistId);
+			LexDb.Map<PlaylistItem>()
+				.Automap(p => p.PlaylistItemId)
+				.WithIndex("PlaylistFK", p => p.PlaylistFK);
 
-		/// <summary>
-		/// Finds a song in the database by its GUID
-		/// </summary>
-		/// <param name="id">GUID of the song to find</param>
-		/// <returns>Single Song object or null if not found</returns>
-		public static async Task<Song> FetchSongByIdAsync(Guid id)
-		{
-			return await SqlLiteConnection.Table<Song>().Where(s => s.SongId == id).FirstOrDefaultAsync();
+			LexDb.Initialize();
 		}
 
 		/// <summary>
@@ -44,29 +54,17 @@ namespace TunrLibrary
 		/// </summary>
 		/// <param name="targetFilter">The song containing the properties that will be used to filter the collection</param>
 		/// <returns></returns>
-		public static async Task<List<Song>> FetchMatchingSongs(Song targetFilter)
+		public static List<Song> FetchMatchingSongs(Song targetFilter)
 		{
 			var props = targetFilter.GetType().GetRuntimeProperties();
 			var nonnull = props.Where(p => p.GetValue(targetFilter, null) != null).ToList();
-
-			string sqlQuery = "SELECT * FROM Songs ";
-			if (nonnull.Count > 0)
-			{
-				sqlQuery += " WHERE";
-			}
+			IEnumerable<Song> query = Songs;
 			for (int i = 0; i < nonnull.Count; i++)
 			{
 				var prop = nonnull[i];
-				if (i > 0)
-				{
-					sqlQuery += " AND";
-				}
-				sqlQuery += " " + prop.Name + " = ? ";
+				query = query.Where(s => prop.GetValue(s) == prop.GetValue(targetFilter));
 			}
-			var sqlParams = nonnull.Select(p => p.GetValue(targetFilter, null)).ToArray<object>();
-
-			var matches = await SqlLiteConnection.QueryAsync<Song>(sqlQuery, sqlParams);
-			return matches;
+			return query.ToList();
 		}
 
 		/// <summary>
@@ -76,7 +74,7 @@ namespace TunrLibrary
 		/// <returns></returns>
 		public static async Task AddOrUpdateSongs(List<Song> songs)
 		{
-			await SqlLiteConnection.InsertOrReplaceAllAsync(songs);
+			await Songs.SaveAsync(songs);
 		}
 
 		/// <summary>
@@ -86,33 +84,13 @@ namespace TunrLibrary
 		/// <returns></returns>
 		public static async Task AddSongToPlaylistAsync(Song song)
 		{
-			var lastItem = await SqlLiteConnection.Table<PlaylistItem>().Where(p => p.PlaylistId == Guid.Empty).OrderByDescending(p => p.Order).Take(1).FirstOrDefaultAsync();
+			var lastItem = PlaylistItems.IndexQueryByKey("PlaylistFK", Guid.Empty).ToList().OrderByDescending(p => p.Order).Take(1).FirstOrDefault();
 			int order = 0;
 			if (lastItem != null)
 			{
 				order = lastItem.Order + 1;
 			}
-			await SqlLiteConnection.InsertAsync(new PlaylistItem() { PlaylistId = Guid.Empty, PlaylistItemId = Guid.NewGuid(), Order = order, SongId = (Guid)song.SongId });
-		}
-
-		/// <summary>
-		/// Returns the specified playlist item
-		/// </summary>
-		/// <param name="playlistItemId">ID of the requested playlist item</param>
-		/// <returns></returns>
-		public static async Task<PlaylistItem> FetchPlaylistItem(Guid playlistItemId)
-		{
-			return await SqlLiteConnection.Table<PlaylistItem>().Where(p => p.PlaylistItemId == playlistItemId).FirstOrDefaultAsync();
-		}
-
-		/// <summary>
-		/// Retrieves a list of playlist items from the specified playlist
-		/// </summary>
-		/// <param name="playlistId">GUID of playlist to retrieve</param>
-		/// <returns>A list of playlist items</returns>
-		public static async Task<List<PlaylistItem>> FetchPlaylistItems(Guid playlistId)
-		{
-			return await SqlLiteConnection.Table<PlaylistItem>().Where(p => p.PlaylistId == playlistId).OrderBy(p => p.Order).ToListAsync();
+			await PlaylistItems.SaveAsync(new PlaylistItem() { PlaylistFK = Guid.Empty, PlaylistItemId = Guid.NewGuid(), Order = order, SongFK = song.SongId });
 		}
 
 		/// <summary>
@@ -122,7 +100,7 @@ namespace TunrLibrary
 		/// <returns></returns>
 		public static async Task ClearPlaylist(Guid playlistId)
 		{
-			await SqlLiteConnection.ExecuteAsync("delete from \"PlaylistItems\" where \"PlaylistId\" = ?", playlistId);
+			await PlaylistItems.DeleteAsync(PlaylistItems.IndexQueryByKey("PlaylistFK", playlistId).ToList());
 		}
 
 		/// <summary>
@@ -132,10 +110,17 @@ namespace TunrLibrary
 		/// <returns>Song object associated with playlist item</returns>
 		public static async Task<Song> FetchPlaylistItemSong(Guid playlistItemId)
 		{
-			// HACK : this should be a join query, but I'm lazy right now
-			var playlistItem = await SqlLiteConnection.Table<PlaylistItem>().Where(p => p.PlaylistItemId == playlistItemId).FirstOrDefaultAsync();
-			var song = await SqlLiteConnection.Table<Song>().Where(s => s.SongId == playlistItem.SongId).FirstOrDefaultAsync();
-			return song;
+			return (await PlaylistItems.LoadByKeyAsync(playlistItemId)).Song;
+		}
+
+		public static async Task<PlaylistItem> FetchPlaylistItem(Guid guid)
+		{
+			return await PlaylistItems.LoadByKeyAsync(guid);
+		}
+
+		public static async Task<List<PlaylistItem>> FetchPlaylistItems(Guid guid)
+		{
+			return await PlaylistItems.IndexQueryByKey("PlaylistFK", guid).ToListAsync();
 		}
 	}
 }

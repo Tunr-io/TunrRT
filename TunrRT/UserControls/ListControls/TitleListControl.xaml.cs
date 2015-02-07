@@ -40,7 +40,7 @@ namespace TunrRT.UserControls
 		public object Convert(object value, Type targetType, object parameter, string language)
 		{
 			List<Song> songs = value as List<Song>;
-			return songs.OrderBy(s => s.TrackNumber);
+			return songs.OrderBy(s => s.TagTrack);
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, string language)

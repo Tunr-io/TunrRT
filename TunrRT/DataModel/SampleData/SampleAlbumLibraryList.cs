@@ -16,10 +16,10 @@ namespace TunrRT.DataModel
 			this.FilterSong = new Song();
 			this.FilteredPropertyName = "Album";
 			this.Results = new List<Song>() {
-				new Song() {TrackNumber=1, Album="Best Album"},
-				new Song() {TrackNumber=2, Album="Worst Album"},
-				new Song() {TrackNumber=3, Album="Pretty Mediocre Album"},
-				new Song() {TrackNumber=4, Album="Heavenly Album"}
+				new Song() {TagTrack=1, TagAlbum="Best Album"},
+				new Song() {TagTrack=2, TagAlbum="Worst Album"},
+				new Song() {TagTrack=3, TagAlbum="Pretty Mediocre Album"},
+				new Song() {TagTrack=4, TagAlbum="Heavenly Album"}
 			};
 		}
 	}

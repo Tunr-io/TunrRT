@@ -20,9 +20,9 @@ namespace TunrRT.DataModel
 					ListName="Music",
 					FilterSong=new Song(),
 					Results=new List<Song>() {
-						new Song() {Artist="Test Artist 1"},
-						new Song() {Artist="Test Artist 2"},
-						new Song() {Artist="Test Artist 3"}
+						new Song() {TagPerformers= new List<string>() {"Test Artist 1"}},
+						new Song() {TagPerformers= new List<string>() {"Test Artist 2"}},
+						new Song() {TagPerformers= new List<string>() {"Test Artist 3"}}
 					}
 				}
 			};

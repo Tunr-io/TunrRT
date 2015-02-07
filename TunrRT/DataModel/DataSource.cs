@@ -1,5 +1,4 @@
-﻿using SQLite;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -38,9 +37,8 @@ namespace TunrRT.DataModel
     public class DataSource : INotifyPropertyChanged
     {
 		public readonly string[] FilterProperties = {"Artist", "Album", "Title"};
-		public const string BASEURL = "https://play.tunr.io";
+		public const string BASEURL = "https://dev.tunr.io";
 		private AuthenticationToken AuthToken;
-		private SQLiteAsyncConnection SqlLiteConnection;
 
 		public ObservableCollection<LibraryList> BrowseLists { get; set; }
 
