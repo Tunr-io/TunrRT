@@ -36,7 +36,7 @@ namespace TunrRT.DataModel
     /// </summary>
     public class DataSource : INotifyPropertyChanged
     {
-		public readonly string[] FilterProperties = {"Artist", "Album", "Title"};
+		public readonly string[] FilterProperties = {"TagFirstPerformer", "TagAlbum", "TagTitle"};
 		public const string BASEURL = "https://dev.tunr.io";
 		private AuthenticationToken AuthToken;
 

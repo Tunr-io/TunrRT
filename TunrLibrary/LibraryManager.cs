@@ -34,9 +34,9 @@ namespace TunrLibrary
 			LexDb = new DbInstance("TunrData");
 			LexDb.Map<Song>()
 				.Automap(s => s.SongId)
-				//.WithIndex("TagPerformers", s => s.TagPerformers)
-				.WithIndex("TagAlbum", s => s.TagAlbum)
-				.WithIndex("TagTitle", s => s.TagTitle)
+				.WithIndex("TagFirstPerformer", s => s.TagFirstPerformer)
+				.WithIndex("TagAlbum", s => s.TagAlbum, StringComparer.OrdinalIgnoreCase)
+				.WithIndex("TagTitle", s => s.TagTitle, StringComparer.OrdinalIgnoreCase)
 				//.WithIndex("TagGenres", s => s.TagGenres)
 				.WithIndex("TagYear", s => s.TagYear);
 			LexDb.Map<Playlist>()
@@ -56,9 +56,11 @@ namespace TunrLibrary
 		/// <returns></returns>
 		public static List<Song> FetchMatchingSongs(Song targetFilter)
 		{
+			// TODO: Make this cleaner / not hard-coded to certain properties...
+			var library = Songs.LoadAll();
 			var props = targetFilter.GetType().GetRuntimeProperties();
-			var nonnull = props.Where(p => p.GetValue(targetFilter, null) != null).ToList();
-			IEnumerable<Song> query = Songs;
+			var nonnull = props.Where(p => p.PropertyType != typeof(Guid) && p.GetValue(targetFilter, null) != null).ToList();
+			IEnumerable<Song> query = library;
 			for (int i = 0; i < nonnull.Count; i++)
 			{
 				var prop = nonnull[i];

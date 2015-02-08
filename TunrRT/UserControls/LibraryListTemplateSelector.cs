@@ -21,11 +21,11 @@ namespace TunrRT.UserControls
 			if (list == null) return ArtistListTemplate;
 			switch (list.FilteredPropertyName.ToLower())
 			{
-				case "artist":
+				case "tagfirstperformer":
 					return ArtistListTemplate;
-				case "album":
+				case "tagalbum":
 					return AlbumListTemplate;
-				case "title":
+				case "tagtitle":
 					return TitleListTemplate;
 			}
 			return TitleListTemplate;

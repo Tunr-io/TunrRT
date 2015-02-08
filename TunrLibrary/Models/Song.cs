@@ -31,27 +31,27 @@ namespace TunrLibrary.Models
 		/// <summary>
 		/// Size of the file in bytes.
 		/// </summary>
-		public long FileSize { get; set; }
+		public long? FileSize { get; set; }
 
 		/// <summary>
 		/// Number of audio channels.
 		/// </summary>
-		public int AudioChannels { get; set; }
+		public int? AudioChannels { get; set; }
 
 		/// <summary>
 		/// Bitrate of the audio.
 		/// </summary>
-		public int AudioBitrate { get; set; }
+		public int? AudioBitrate { get; set; }
 
 		/// <summary>
 		/// Sample rate of the audio.
 		/// </summary>
-		public int AudioSampleRate { get; set; }
+		public int? AudioSampleRate { get; set; }
 
 		/// <summary>
 		/// Duration of the song in seconds.
 		/// </summary>
-		public double Duration { get; set; }
+		public double? Duration { get; set; }
 
 		/// <summary>
 		/// Tag: Track title.
@@ -67,6 +67,17 @@ namespace TunrLibrary.Models
 		/// Tag: List of track performers.
 		/// </summary>
 		public List<string> TagPerformers { get; set; }
+
+		/// <summary>
+		/// The first performer listed for this song.
+		/// </summary>
+		public string TagFirstPerformer
+		{
+			get
+			{
+				return TagPerformers == null ? null : TagPerformers.FirstOrDefault();
+			}
+		}
 
 		/// <summary>
 		/// Tag: List of track album artists.
@@ -86,27 +97,27 @@ namespace TunrLibrary.Models
 		/// <summary>
 		/// Tag: Track year.
 		/// </summary>
-		public int TagYear { get; set; }
+		public int? TagYear { get; set; }
 
 		/// <summary>
 		/// Tag: Track number.
 		/// </summary>
-		public int TagTrack { get; set; }
+		public int? TagTrack { get; set; }
 
 		/// <summary>
 		/// Tag: Total album track count.
 		/// </summary>
-		public int TagTrackCount { get; set; }
+		public int? TagTrackCount { get; set; }
 
 		/// <summary>
 		/// Tag: Track disc number.
 		/// </summary>
-		public int TagDisc { get; set; }
+		public int? TagDisc { get; set; }
 
 		/// <summary>
 		/// Tag: Total album disc count.
 		/// </summary>
-		public int TagDiscCount { get; set; }
+		public int? TagDiscCount { get; set; }
 
 		/// <summary>
 		/// Tag: Track comment.
@@ -126,7 +137,7 @@ namespace TunrLibrary.Models
 		/// <summary>
 		/// Tag: Track BPM.
 		/// </summary>
-		public int TagBeatsPerMinute { get; set; }
+		public int? TagBeatsPerMinute { get; set; }
 
 		/// <summary>
 		/// Tag: Track grouping.
@@ -153,10 +164,10 @@ namespace TunrLibrary.Models
 				Duration = this.Duration,
 				TagTitle = this.TagTitle,
 				TagAlbum = this.TagAlbum,
-				TagPerformers = new List<string>(this.TagPerformers),
-				TagAlbumArtists = new List<string>(this.TagAlbumArtists),
-				TagComposers = new List<string>(this.TagComposers),
-				TagGenres = new List<string>(this.TagGenres),
+				TagPerformers = this.TagPerformers == null ? new List<string>() : new List<string>(this.TagPerformers),
+				TagAlbumArtists = this.TagAlbumArtists == null ? new List<string>() : new List<string>(this.TagAlbumArtists),
+				TagComposers = this.TagComposers == null ? new List<string>() : new List<string>(this.TagComposers),
+				TagGenres = this.TagGenres == null ? new List<string>() : new List<string>(this.TagGenres),
 				TagYear = this.TagYear,
 				TagTrack = this.TagTrack,
 				TagTrackCount = this.TagTrackCount,

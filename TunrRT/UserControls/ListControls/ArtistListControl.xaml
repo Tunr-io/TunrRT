@@ -75,7 +75,7 @@
 				</ListView.GroupStyle>
 				<ListView.ItemTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding Artist}" Foreground="Black" FontSize="26" />
+						<TextBlock Text="{Binding TagPerformers[0]}" Foreground="Black" FontSize="26" />
 					</DataTemplate>
 				</ListView.ItemTemplate>
 			</ListView>
