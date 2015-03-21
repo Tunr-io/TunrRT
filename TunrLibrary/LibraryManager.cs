@@ -54,17 +54,19 @@ namespace TunrLibrary
 		/// </summary>
 		/// <param name="targetFilter">The song containing the properties that will be used to filter the collection</param>
 		/// <returns></returns>
-		public static List<Song> FetchMatchingSongs(Song targetFilter)
+		public static List<Song> FetchMatchingSongs(List<SongFilter> filters)
 		{
 			// TODO: Make this cleaner / not hard-coded to certain properties...
 			var library = Songs.LoadAll();
-			var props = targetFilter.GetType().GetRuntimeProperties();
-			var nonnull = props.Where(p => p.PropertyType != typeof(Guid) && p.GetValue(targetFilter, null) != null).ToList();
 			IEnumerable<Song> query = library;
-			for (int i = 0; i < nonnull.Count; i++)
+			for (int i = 0; i < filters.Count; i++)
 			{
-				var prop = nonnull[i];
-				query = query.Where(s => prop.GetValue(s) == prop.GetValue(targetFilter));
+				var prop = filters[i].Property;
+				var value = filters[i].Value;
+				query = query.Where(s => {
+					var sv = prop.GetValue(s);
+					return sv != null ? sv.Equals(value) : false;
+				});
 			}
 			return query.ToList();
 		}

@@ -16,9 +16,8 @@ namespace TunrRT.DataModel
 			BrowseLists = new ObservableCollection<LibraryList>()
 			{
 				new LibraryListSample() {
-					FilteredPropertyName="Artist",
 					ListName="Music",
-					FilterSong=new Song(),
+					Filters=new List<SongFilter>(),
 					Results=new List<Song>() {
 						new Song() {TagPerformers= new List<string>() {"Test Artist 1"}},
 						new Song() {TagPerformers= new List<string>() {"Test Artist 2"}},

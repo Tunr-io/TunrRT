@@ -36,12 +36,62 @@ namespace TunrRT.DataModel
     /// </summary>
     public class DataSource : INotifyPropertyChanged
     {
-		public readonly string[] FilterProperties = {"TagFirstPerformer", "TagAlbum", "TagTitle"};
-		public const string BASEURL = "https://dev.tunr.io";
+		/// <summary>
+		/// Contains the names of properties that can be used for filtering
+		/// songs in the library browser.
+		/// </summary>
+		public readonly string[] FilterablePropertyNames = { "TagPerformers", "TagAlbum", "TagTitle", "TagGenre", "TagYear" };
+
+		/// <summary>
+		/// List of property names in the order they're used to filter
+		/// songs in the library browser.
+		/// </summary>
+		public string[] LibraryFilterTreePropertyNames = { "TagFirstPerformer", "TagAlbum", "TagTitle" };
+
+		private PropertyInfo[] _LibraryFilterTreeProperties;
+		/// <summary>
+		/// Contains a list of the actual reflrection propertyinfo objects
+		/// used to filter songs in the library browser.
+		/// </summary>
+		private PropertyInfo[] LibraryFilterTreeProperties
+		{
+			get
+			{
+				if (_LibraryFilterTreeProperties == null 
+					|| _LibraryFilterTreeProperties.Length != LibraryFilterTreePropertyNames.Length)
+				{
+					_LibraryFilterTreeProperties = new PropertyInfo[LibraryFilterTreePropertyNames.Length];
+					for (int i = 0; i < _LibraryFilterTreeProperties.Length; i++)
+					{
+						_LibraryFilterTreeProperties[i] = typeof(Song).GetRuntimeProperty(LibraryFilterTreePropertyNames[i]);
+					}
+				}
+				return _LibraryFilterTreeProperties;
+			}
+		}
+
+		/// <summary>
+		/// The base URL of the Tunr web service.
+		/// </summary>
+#if DEBUG
+		public const string BASEURL = "https://play.tunr.io";
+#else
+		public const string BASEURL = "https://play.tunr.io";
+#endif
+
+		/// <summary>
+		/// Authentication token used to authenticate web requests.
+		/// </summary>
 		private AuthenticationToken AuthToken;
 
+		/// <summary>
+		/// Collection of each loaded list in the library browser.
+		/// </summary>
 		public ObservableCollection<LibraryList> BrowseLists { get; set; }
 
+		/// <summary>
+		/// The library list currently being displayed to the user.
+		/// </summary>
 		public LibraryList ActiveList
 		{
 			get
@@ -50,9 +100,15 @@ namespace TunrRT.DataModel
 			}
 		}
 
-		// Implement INotifyPropertyChanged ...
+		/// <summary>
+		/// Property changed event.
+		/// </summary>
 		public event PropertyChangedEventHandler PropertyChanged;
 
+		/// <summary>
+		/// Used to trigger property changed events
+		/// </summary>
+		/// <param name="name">Name of property changed</param>
 		protected void OnPropertyChanged(string name)
 		{
 			PropertyChangedEventHandler handler = PropertyChanged;
@@ -71,9 +127,9 @@ namespace TunrRT.DataModel
 
 			BrowseLists.Add(new LibraryList(this)
 			{
-				FilteredPropertyName = FilterProperties[0],
-				FilterSong = new Song(),
-				ListName = "Music"
+				Filters = new List<SongFilter>(),
+				ListName = "Music",
+				TargetProperty = LibraryFilterTreeProperties.FirstOrDefault()
 			});
 		}
 
@@ -152,26 +208,30 @@ namespace TunrRT.DataModel
 		
 
 		/// <summary>
-		/// 
+		/// This method prepares a new browselist based on a selected song,
+		/// and a 'target property' on which to filter.
 		/// </summary>
-		/// <param name="target"></param>
-		/// <param name="targetProperty"></param>
-		public async void SelectFilter(Song target, string targetProperty)
+		/// <param name="target">Selected song</param>
+		/// <param name="targetProperty">Property on which to filter the next list</param>
+		public async void SelectFilter(Song target, PropertyInfo targetProperty)
 		{
-			if (targetProperty.ToLower() == "title")
+			if (targetProperty.Name.ToLower() == "tagtitle")
 			{
 				await LibraryManager.AddSongToPlaylistAsync(target);
 				((App.Current) as App).BackgroundAudioHandler.Play();
 				return;
 			}
-			var property = target.GetType().GetRuntimeProperties().Where(p => p.Name.ToLower() == targetProperty.ToLower()).FirstOrDefault();
-			var propertyValue = property.GetValue(target, null);
-			var newSongFilter = BrowseLists.Last().FilterSong.Clone();
-			property.SetValue(newSongFilter, propertyValue);
+			var propertyValue = targetProperty.GetValue(target, null);
+			var newFilter = new List<SongFilter>(BrowseLists.Last().Filters);
+			newFilter.Add(new SongFilter()
+			{
+				Property = targetProperty,
+				Value = propertyValue
+			});
 			var nextList = new LibraryList(this)
 			{
-				FilteredPropertyName = FilterProperties[BrowseLists.Count],
-				FilterSong = newSongFilter,
+				Filters = newFilter,
+				TargetProperty = LibraryFilterTreeProperties[BrowseLists.Count],
 				ListName = (string)propertyValue
 			};
 			BrowseLists.Add(nextList);

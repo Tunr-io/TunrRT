@@ -19,7 +19,7 @@
 		<GridView.ItemTemplate>
 			<DataTemplate>
 				<Border Margin="4" Width="120" Height="120" Background="#FFC8C8C8">
-					<TextBlock Text="{Binding Album}" />
+					<TextBlock Text="{Binding TagAlbum}" Foreground="Black" VerticalAlignment="Bottom" FontSize="24" HorizontalAlignment="Left" TextWrapping="Wrap" FontWeight="Light" />
 				</Border>
 			</DataTemplate>
 		</GridView.ItemTemplate>

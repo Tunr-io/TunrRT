@@ -13,8 +13,7 @@ namespace TunrRT.DataModel
 		public SampleAlbumLibraryList()
 		{
 			this.ListName = "albums";
-			this.FilterSong = new Song();
-			this.FilteredPropertyName = "Album";
+			this.Filters = new List<SongFilter>();
 			this.Results = new List<Song>() {
 				new Song() {TagTrack=1, TagAlbum="Best Album"},
 				new Song() {TagTrack=2, TagAlbum="Worst Album"},

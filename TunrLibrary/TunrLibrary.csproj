@@ -83,6 +83,7 @@
     <Compile Include="Models\Playlist.cs" />
     <Compile Include="Models\PlaylistItem.cs" />
     <Compile Include="Models\Song.cs" />
+    <Compile Include="Models\SongFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

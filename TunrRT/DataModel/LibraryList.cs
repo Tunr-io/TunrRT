@@ -34,19 +34,19 @@ namespace TunrRT.DataModel
 		private readonly DataSource DataSource;
 
 		/// <summary>
-		/// The name of this list - displayed in the browser
+		/// The name of this list
 		/// </summary>
 		public string ListName { get; set; }
 
 		/// <summary>
-		/// The property name of the song on which this list is filtering
+		/// The property on which this list is based
 		/// </summary>
-		public string FilteredPropertyName { get; set; }
+		public PropertyInfo TargetProperty { get; set; }
 
 		/// <summary>
-		/// The song object containing all of the properties this list is filtering by
+		/// The list of filters being applied to this list
 		/// </summary>
-		public Song FilterSong { get; set; }
+		public List<SongFilter> Filters { get; set; }
 
 		public LibraryList(DataSource dataSource)
 		{
@@ -61,7 +61,7 @@ namespace TunrRT.DataModel
 		{
 			await Task.Run(() =>
 			{
-				_Results = LibraryManager.FetchMatchingSongs(FilterSong);
+				_Results = LibraryManager.FetchMatchingSongs(Filters);
 			});
 			OnPropertyChanged("Results");
 		}
@@ -84,7 +84,7 @@ namespace TunrRT.DataModel
 		/// </summary>
 		/// <param name="s">The target song that the user has selected</param>
 		public void SelectSong(Song s) {
-			DataSource.SelectFilter(s, FilteredPropertyName);
+			DataSource.SelectFilter(s, TargetProperty);
 		}
 	}
 }

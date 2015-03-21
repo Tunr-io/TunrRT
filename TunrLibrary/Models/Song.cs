@@ -77,6 +77,21 @@ namespace TunrLibrary.Models
 			{
 				return TagPerformers == null ? null : TagPerformers.FirstOrDefault();
 			}
+			set
+			{
+				if (TagPerformers == null)
+				{
+					TagPerformers = new List<string>() {
+						value
+					};
+					return;
+				}
+				if (TagPerformers.Contains(value))
+				{
+					TagPerformers.Remove(value);
+				}
+				TagPerformers.Insert(0, value);
+			}
 		}
 
 		/// <summary>

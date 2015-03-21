@@ -19,7 +19,7 @@ namespace TunrRT.UserControls
 		{
 			var list = item as LibraryList;
 			if (list == null) return ArtistListTemplate;
-			switch (list.FilteredPropertyName.ToLower())
+			switch (list.TargetProperty.Name.ToLower())
 			{
 				case "tagfirstperformer":
 					return ArtistListTemplate;

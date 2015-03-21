@@ -41,7 +41,7 @@ namespace TunrRT.UserControls
 		{
 			List<Song> songs = value as List<Song>;
 			// TODO: Make this work for multiple artists listed
-			return songs.GroupBy(a => a.TagPerformers.FirstOrDefault()).Select(a => a.First()).OrderBy(a => a.TagPerformers.FirstOrDefault()).GroupBy(a => a.TagPerformers.FirstOrDefault().ToUpper()[0]);
+			return songs.GroupBy(a => a.TagPerformers.FirstOrDefault()).Select(a => a.First()).OrderBy(a => a.TagPerformers.FirstOrDefault()).GroupBy(a => a.TagPerformers.FirstOrDefault() != null ? a.TagPerformers.FirstOrDefault().ToUpper()[0] : ' ');
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, string language)
