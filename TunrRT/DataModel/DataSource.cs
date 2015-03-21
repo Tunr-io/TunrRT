@@ -100,6 +100,8 @@ namespace TunrRT.DataModel
 			}
 		}
 
+		public ObservableCollection<Song> PlaylistItems { get; set; }
+
 		/// <summary>
 		/// Property changed event.
 		/// </summary>
@@ -122,6 +124,13 @@ namespace TunrRT.DataModel
 		{
 			BrowseLists = new ObservableCollection<LibraryList>();
 			BrowseLists.CollectionChanged += BrowseLists_CollectionChanged;
+
+			PlaylistItems = new ObservableCollection<Song>();
+			var playlist = LibraryManager.FetchPlaylistSongs(Guid.Empty).Result;
+			foreach (var item in playlist)
+			{
+				PlaylistItems.Add(item);
+			}
 
 			AuthToken = auth;
 
@@ -218,6 +227,8 @@ namespace TunrRT.DataModel
 			if (targetProperty.Name.ToLower() == "tagtitle")
 			{
 				await LibraryManager.AddSongToPlaylistAsync(target);
+				PlaylistItems.Add(target);
+				OnPropertyChanged("PlaylistItems");
 				((App.Current) as App).BackgroundAudioHandler.Play();
 				return;
 			}

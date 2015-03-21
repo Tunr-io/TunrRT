@@ -16,6 +16,19 @@ namespace TunrLibrary
 	{
 		private static readonly DbInstance LexDb;
 
+		private static List<Song> _SongCache;
+		public static List<Song> SongCache
+		{
+			get
+			{
+				if (_SongCache == null)
+				{
+					_SongCache = Songs.LoadAll().ToList();
+				}
+				return _SongCache;
+			}
+		}
+
 		public static DbTable<Song> Songs { get { return _songs ?? (_songs = LexDb.Table<Song>()); } }
 		static DbTable<Song> _songs;
 
@@ -54,10 +67,10 @@ namespace TunrLibrary
 		/// </summary>
 		/// <param name="targetFilter">The song containing the properties that will be used to filter the collection</param>
 		/// <returns></returns>
-		public static List<Song> FetchMatchingSongs(List<SongFilter> filters)
+		public static async Task<List<Song>> FetchMatchingSongs(List<SongFilter> filters)
 		{
 			// TODO: Make this cleaner / not hard-coded to certain properties...
-			var library = Songs.LoadAll();
+			var library = SongCache;
 			IEnumerable<Song> query = library;
 			for (int i = 0; i < filters.Count; i++)
 			{
@@ -79,6 +92,7 @@ namespace TunrLibrary
 		public static async Task AddOrUpdateSongs(List<Song> songs)
 		{
 			await Songs.SaveAsync(songs);
+			_SongCache = null;
 		}
 
 		/// <summary>
@@ -125,6 +139,12 @@ namespace TunrLibrary
 		public static async Task<List<PlaylistItem>> FetchPlaylistItems(Guid guid)
 		{
 			return await PlaylistItems.IndexQueryByKey("PlaylistFK", guid).ToListAsync();
+		}
+
+		public static async Task<List<Song>> FetchPlaylistSongs(Guid guid)
+		{
+			var playlistItems = await PlaylistItems.IndexQueryByKey("PlaylistFK", guid).ToListAsync();
+			return PlaylistItems.Select(i => i.Song).ToList();
 		}
 	}
 }

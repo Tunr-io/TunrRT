@@ -59,9 +59,9 @@ namespace TunrRT.DataModel
 		/// <returns></returns>
 		public async Task UpdateResults()
 		{
-			await Task.Run(() =>
+			await Task.Run(async () =>
 			{
-				_Results = LibraryManager.FetchMatchingSongs(Filters);
+				_Results = await LibraryManager.FetchMatchingSongs(Filters);
 			});
 			OnPropertyChanged("Results");
 		}

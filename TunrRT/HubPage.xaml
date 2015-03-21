@@ -164,7 +164,7 @@
 				</DataTemplate>
 			</HubSection>
 
-			<HubSection Tag="1" x:Uid="HubPlaylistSection" DataContext="{Binding Groups[2]}">
+			<HubSection Tag="1" x:Uid="HubPlaylistSection">
 				<HubSection.Header>
 					<TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="48" Text="playlist"/>
 				</HubSection.Header>
@@ -174,13 +174,13 @@
                         AutomationProperties.Name="Items In Group"
                         SelectionMode="None"
                         IsItemClickEnabled="True"
-                        ItemsSource="{Binding Items}"
+                        ItemsSource="{Binding PlaylistItems}"
                         ContinuumNavigationTransitionInfo.ExitElementContainer="True">
 						<ListView.ItemTemplate>
 							<DataTemplate>
 								<StackPanel Margin="0,0,0,19">
-									<TextBlock Text="{Binding Title}" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
-									<TextBlock Text="{Binding Subtitle}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
+									<TextBlock Text="{Binding TagTitle}" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
+									<TextBlock Text="{Binding TagFirstPerformer}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
 								</StackPanel>
 							</DataTemplate>
 						</ListView.ItemTemplate>
