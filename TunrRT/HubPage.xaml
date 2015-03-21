@@ -169,13 +169,15 @@
 					<TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="48" Text="playlist"/>
 				</HubSection.Header>
 				<DataTemplate>
-					<ListView 
+					<ListView x:Name="ListPlaylist" 
                         AutomationProperties.AutomationId="ItemListViewSection4"
                         AutomationProperties.Name="Items In Group"
                         SelectionMode="None"
                         IsItemClickEnabled="True"
+						IsHoldingEnabled="True"
+						CanReorderItems="True"
                         ItemsSource="{Binding PlaylistItems}"
-                        ContinuumNavigationTransitionInfo.ExitElementContainer="True">
+                        ContinuumNavigationTransitionInfo.ExitElementContainer="True" Holding="ListPlaylist_Holding" Loaded="ListPlaylist_Loaded" ItemClick="ListPlaylist_ItemClick" Tapped="ListPlaylist_Tapped">
 						<ListView.ItemTemplate>
 							<DataTemplate>
 								<StackPanel Margin="0,0,0,19">

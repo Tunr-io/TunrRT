@@ -21,6 +21,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.Media.Playback;
 using TunrLibrary;
+using TunrLibrary.Models;
 
 // The Hub Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -32,6 +33,9 @@ namespace TunrRT
     public sealed partial class HubPage : Page
     {
         private readonly NavigationHelper navigationHelper;
+		private ListView ListPlaylist;
+
+		private bool ListViewReorderPressed = false;
 
         public HubPage()
         {
@@ -147,6 +151,44 @@ namespace TunrRT
 		{
 			await LibraryManager.ClearPlaylist(Guid.Empty);
 			System.Diagnostics.Debug.WriteLine("Playlist cleared.");
+		}
+
+		private void ListPlaylist_Holding(object sender, HoldingRoutedEventArgs e)
+		{
+			ListPlaylist.SelectionMode = ListViewSelectionMode.Single;
+			ListPlaylist.ReorderMode = ListViewReorderMode.Enabled;
+			ListPlaylist.SelectedIndex = 0;
+		}
+
+		private void ListPlaylist_Loaded(object sender, RoutedEventArgs e)
+		{
+			ListPlaylist = (ListView)sender;
+		}
+
+		private void ListPlaylist_ItemClick(object sender, ItemClickEventArgs e)
+		{
+			System.Diagnostics.Debug.WriteLine("Item click: " + ListPlaylist.SelectedIndex + " / " + (e.ClickedItem as Song).TagTitle);
+			if (ListPlaylist.ReorderMode == ListViewReorderMode.Enabled)
+			{
+				ListViewReorderPressed = true;
+			}
+		}
+
+		private void ListPlaylist_Tapped(object sender, TappedRoutedEventArgs e)
+		{
+			System.Diagnostics.Debug.WriteLine("tapped: " + ListPlaylist.SelectedIndex);
+			if (ListPlaylist.ReorderMode == ListViewReorderMode.Enabled)
+			{
+				if (!ListViewReorderPressed)
+				{
+					ListPlaylist.SelectionMode = ListViewSelectionMode.None;
+					ListPlaylist.ReorderMode = ListViewReorderMode.Disabled;
+					ListViewReorderPressed = false;
+				}
+				ListViewReorderPressed = false;
+			}
+			
+			
 		}
     }
 }
