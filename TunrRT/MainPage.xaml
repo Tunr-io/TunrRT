@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:sample="using:TunrRT.SampleData"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     DataContext="{Binding Source={StaticResource Data}}" Loaded="Page_Loaded">
@@ -15,10 +16,30 @@
         <local:ProgressBehavior IsVisible="{Binding IsBusy}" Text="Working . . ."/>
     </i:Interaction.Behaviors>
 
-
     <Grid>
         <Hub>
             <HubSection Tag="0" Background="White">
+                <HubSection.Style>
+                    <Style TargetType="HubSection">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="HubSection">
+                                    <Grid Background="{TemplateBinding Background}" Margin="{StaticResource HubSectionMarginThickness}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.RenderTransform>
+                                            <CompositeTransform x:Name="WrappingTransform"/>
+                                        </Grid.RenderTransform>
+                                        <ContentPresenter x:Name="ContentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Grid.Row="2" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </HubSection.Style>
                 <DataTemplate>
                     <controls:LibraryBrowser DataContext="{Binding}" />
                 </DataTemplate>

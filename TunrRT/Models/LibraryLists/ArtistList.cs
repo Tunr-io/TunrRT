@@ -10,7 +10,7 @@ using TunrLibrary.Models;
 
 namespace TunrRT.Models
 {
-    class ArtistList : LibraryList
+    public class ArtistList : LibraryList
     {
         /// <summary>
         /// A SORTED list of unique artists (through song objects) matching filters.

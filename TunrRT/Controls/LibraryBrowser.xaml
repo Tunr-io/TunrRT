@@ -5,12 +5,14 @@
     xmlns:local="using:TunrRT.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converter="using:TunrRT.Converters"
     mc:Ignorable="d"
     d:DesignHeight="800"
     d:DesignWidth="480"
     DataContext="{Binding Source={StaticResource Data}}">
 
     <UserControl.Resources>
+        <converter:ToLowercaseConverter x:Key="ToLowercaseConverter" />
         <DataTemplate x:Key="ArtistListTemplate">
             <local:ArtistListControl DataContext="{Binding}" />
         </DataTemplate>
@@ -23,14 +25,20 @@
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Vertical" Grid.Row="0">
-            <ItemsControl ItemsSource="{Binding BrowseLists}">
-                <ItemsControl.ItemTemplate>
+        <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0 0 0 16">
+            <ListView ItemsSource="{Binding BrowseLists}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0 2" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Foreground="Black" Text="{Binding ListName}" />
+                        <TextBlock Foreground="Black" Text="{Binding ListName, Converter={StaticResource ToLowercaseConverter}}" FontWeight="Light" FontSize="64" TextLineBounds="Tight" TextTrimming="Clip" />
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </ListView.ItemTemplate>
+            </ListView>
         </StackPanel>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding BrowseLists}">
             <ItemsControl.ItemsPanel>

@@ -6,10 +6,15 @@
 	xmlns:data="using:TunrRT.Models"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sample="using:TunrRT.SampleData"
     mc:Ignorable="d"
     d:DesignHeight="800"
     d:DesignWidth="480">
 
+    <d:Page.DataContext>
+        <sample:SampleArtistList />
+    </d:Page.DataContext>
+    
     <ListView ItemsSource="{Binding Artists}" SelectionMode="None">
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
@@ -18,7 +23,7 @@
         </ListView.ItemContainerStyle>
         <ListView.ItemTemplate>
             <DataTemplate>
-                <TextBlock Text="{Binding TagFirstPerformer}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="29.333" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding TagFirstPerformer}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="25" FontWeight="Normal" />
             </DataTemplate>
         </ListView.ItemTemplate>
     </ListView>
