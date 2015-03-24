@@ -43,6 +43,14 @@ namespace TunrRT
             // Windows.Phone.UI.Input.HardwareButtons.BackPressed event.
             // If you are using the NavigationHelper provided by some templates,
             // this event is handled for you.
+#pragma warning disable CS4014
+            (DataContext as DataSource).Synchronize();
+#pragma warning restore CS4014
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -1,0 +1,48 @@
+﻿<UserControl
+    x:Class="TunrRT.Controls.LibraryBrowser"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TunrRT.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="800"
+    d:DesignWidth="480"
+    DataContext="{Binding Source={StaticResource Data}}">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="ArtistListTemplate">
+            <local:ArtistListControl DataContext="{Binding}" />
+        </DataTemplate>
+        <local:LibraryListTemplateSelector x:Key="LibraryListTemplateSelector"
+										   ArtistListTemplate="{StaticResource ArtistListTemplate}"/>
+    </UserControl.Resources>
+
+    <Grid Margin="16 16 0 0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" Grid.Row="0">
+            <ItemsControl ItemsSource="{Binding BrowseLists}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Foreground="Black" Text="{Binding ListName}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding BrowseLists}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ContentControl VerticalAlignment="Stretch" Content="{Binding}" ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

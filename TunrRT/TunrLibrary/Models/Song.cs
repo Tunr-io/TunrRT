@@ -75,7 +75,15 @@ namespace TunrLibrary.Models
 		{
 			get
 			{
-				return TagPerformers == null ? null : TagPerformers.FirstOrDefault();
+                if (TagPerformers == null)
+                {
+                    return null;
+                }
+                if (TagPerformers.Count == 0)
+                {
+                    return "Unknown";
+                }
+				return TagPerformers.FirstOrDefault();
 			}
 			set
 			{

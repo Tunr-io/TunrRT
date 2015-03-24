@@ -3,12 +3,53 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:TunrRT"
+    xmlns:controls="using:TunrRT.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    DataContext="{Binding Source={StaticResource Data}}" Loaded="Page_Loaded">
+
+    <i:Interaction.Behaviors>
+        <local:ProgressBehavior IsVisible="{Binding IsBusy}" Text="Working . . ."/>
+    </i:Interaction.Behaviors>
+
 
     <Grid>
-        
+        <Hub>
+            <HubSection Tag="0" Background="White">
+                <DataTemplate>
+                    <controls:LibraryBrowser DataContext="{Binding}" />
+                </DataTemplate>
+            </HubSection>
+            <HubSection Tag="1">
+                <HubSection.Header>
+                    <TextBlock Text="playlist" Foreground="White" FontFamily="Segoe WP" FontWeight="Light" FontSize="48" />
+                </HubSection.Header>
+            </HubSection>
+            <HubSection Tag="2">
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical" Margin="0,24,0,0">
+                        <TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="SONG TITLE" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
+                        <TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="THE ARTIST NAME" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
+                        <Rectangle HorizontalAlignment="Left" Width="240" Height="240" Margin="0,8,0,8" Fill="#FF202020" />
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="PrevButton" Style="{StaticResource ButtonNowPlayingStyle}">
+                                <Path Data="F1 M 0,0 L 0,76.8 -48,38.4 z
+									M -48,38.4 L -48,76.8 -76.8,76.8 -76.8,0 -48,0 z" Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
+                            </Button>
+                            <Button x:Name="PlayButton" Style="{StaticResource ButtonNowPlayingStyle}">
+                                <Path Data="F1 M 91.68,53.28 L 14.88,91.68 14.88,14.88 z"  Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
+                            </Button>
+                            <Button x:Name="NextButton" Style="{StaticResource ButtonNowPlayingStyle}">
+                                <Path Data="F1 M 0,0 L 0,76.8 48,38.4 z
+		M 48,38.4 L 48,76.8 76.8,76.8 76.8,0 48,0 z" Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </DataTemplate>
+            </HubSection>
+        </Hub>
     </Grid>
 </Page>

@@ -5,6 +5,9 @@
     xmlns:local="using:TunrRT">
     <Application.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
             <local:DataSource x:Name="Data" />
         </ResourceDictionary>
     </Application.Resources>

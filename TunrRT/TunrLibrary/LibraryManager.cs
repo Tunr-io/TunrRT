@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TunrLibrary.Models;
+using Windows.Foundation;
 
 namespace TunrLibrary
 {
@@ -41,14 +42,21 @@ namespace TunrLibrary
         /// <summary>
         /// Event handler triggered whenever the library has been updated.
         /// </summary>
-        public static event LibraryUpdateHandler OnLibraryUpdate;
-        public delegate void LibraryUpdateHandler(object sender, EventArgs e);
+        public static event EventHandler LibraryUpdate;
+        public static void OnLibraryUpdate()
+        {
+            EventHandler handler = LibraryUpdate;
+            if (null != handler) handler(null, EventArgs.Empty);
+        }
 
         /// <summary>
         /// Static constructor for LibraryManager. Initializes database and in-memory cache.
         /// </summary>
         static LibraryManager()
         {
+            // Initialize library cache
+            LibraryCache = new ConcurrentDictionary<Guid, Song>();
+
             // Initialize LexDb
             LexDb = new DbInstance("TunrData");
 
@@ -67,7 +75,11 @@ namespace TunrLibrary
             LexDb.Initialize();
 
             // Populate the in-memory library cache
-            AddOrUpdateSongs(Songs.LoadAll());
+            var songs = Songs.LoadAll();
+            foreach (var song in songs)
+            {
+                LibraryCache.AddOrUpdate(song.SongId, song, (key, old) => song);
+            }
         }
 
         /// <summary>
@@ -84,7 +96,48 @@ namespace TunrLibrary
                 LibraryCache.AddOrUpdate(song.SongId, song, (key, old) => song);
             }
             // Trigger library update event
-            OnLibraryUpdate(null, new EventArgs());
+            OnLibraryUpdate();
+        }
+
+        /// <summary>
+		/// Fetch songs that match the target filter song.
+		/// Any properties that are not null in the target filter will be used to find matching results.
+		/// </summary>
+		/// <param name="targetFilter">The song containing the properties that will be used to filter the collection</param>
+		/// <returns></returns>
+		public static Task<List<Song>> FetchMatchingSongs(List<SongFilter> filters)
+        {
+            var tcs = new TaskCompletionSource<List<Song>>();
+            List<Song> result = null;
+
+            var asyncAction = Windows.System.Threading.ThreadPool.RunAsync((workItem) =>
+            {
+                // TODO: Make this cleaner / not hard-coded to certain properties...
+                var library = LibraryCache.Values;
+                IEnumerable<Song> query = library;
+                for (int i = 0; i < filters.Count; i++)
+                {
+                    var prop = filters[i].Property;
+                    var value = filters[i].Value;
+                    query = query.Where(s => {
+                        var sv = prop.GetValue(s);
+                        return sv != null ? sv.Equals(value) : false;
+                    });
+                }
+                result = query.ToList();
+            },Windows.System.Threading.WorkItemPriority.Normal);
+
+            asyncAction.Completed = delegate
+            {
+                switch (asyncAction.Status)
+                {
+                    case AsyncStatus.Completed:
+                        tcs.SetResult(result);
+                        break;
+                }
+            };
+
+            return tcs.Task;
         }
 
         /// <summary>
