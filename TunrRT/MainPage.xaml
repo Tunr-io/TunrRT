@@ -24,16 +24,14 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="HubSection">
-                                    <Grid Background="{TemplateBinding Background}" Margin="{StaticResource HubSectionMarginThickness}">
+                                    <Grid Background="{TemplateBinding Background}" Margin="0">
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="auto"/>
-                                            <RowDefinition Height="auto"/>
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
                                         <Grid.RenderTransform>
                                             <CompositeTransform x:Name="WrappingTransform"/>
                                         </Grid.RenderTransform>
-                                        <ContentPresenter x:Name="ContentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Grid.Row="2" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                        <ContentPresenter x:Name="ContentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Grid.Row="0" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                                     </Grid>
                                 </ControlTemplate>
                             </Setter.Value>
