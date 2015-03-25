@@ -93,6 +93,9 @@
       <DependentUpon>LibraryBrowser.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\LibraryListTemplateSelector.cs" />
+    <Compile Include="Controls\ListControls\AlbumListControl.xaml.cs">
+      <DependentUpon>AlbumListControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ListControls\ArtistListControl.xaml.cs">
       <DependentUpon>ArtistListControl.xaml</DependentUpon>
     </Compile>
@@ -106,9 +109,11 @@
     </Compile>
     <Compile Include="Models\AuthenticationToken.cs" />
     <Compile Include="Models\LibraryList.cs" />
+    <Compile Include="Models\LibraryLists\AlbumList.cs" />
     <Compile Include="Models\LibraryLists\ArtistList.cs" />
     <Compile Include="ProgressBehavior.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SampleData\SampleAlbumList.cs" />
     <Compile Include="SampleData\SampleArtistList.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +137,10 @@
     <Page Include="Controls\LibraryBrowser.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ListControls\AlbumListControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\ListControls\ArtistListControl.xaml">
       <Generator>MSBuild:Compile</Generator>
