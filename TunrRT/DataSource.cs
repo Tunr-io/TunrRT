@@ -53,7 +53,7 @@ namespace TunrRT
         /// <summary>
         /// Whether or not we are currently busy synchronizing.
         /// </summary>
-        private bool IsSynchronizing
+        protected bool IsSynchronizing
         {
             get
             {
@@ -65,7 +65,7 @@ namespace TunrRT
                 OnPropertyChanged("IsBusy");
             }
         }
-        private bool _isSynchronizing = false;
+        protected bool _isSynchronizing = false;
 
         /// <summary>
 		/// List of property names in the order they're used to filter
@@ -86,7 +86,7 @@ namespace TunrRT
         /// Contains a list of the actual reflrection propertyinfo objects
         /// used to filter songs in the library browser.
         /// </summary>
-        private PropertyInfo[] LibraryFilterTreeProperties
+        protected PropertyInfo[] LibraryFilterTreeProperties
         {
             get
             {
@@ -102,7 +102,7 @@ namespace TunrRT
                 return _LibraryFilterTreeProperties;
             }
         }
-        private PropertyInfo[] _LibraryFilterTreeProperties;
+        protected PropertyInfo[] _LibraryFilterTreeProperties;
 
         /// <summary>
         /// Property changed event handler
