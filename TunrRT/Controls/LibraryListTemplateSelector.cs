@@ -8,7 +8,7 @@ namespace TunrRT.Controls
 	{
 		public DataTemplate ArtistListTemplate { get; set; }
 		public DataTemplate AlbumListTemplate { get; set; }
-		public DataTemplate TitleListTemplate { get; set; }
+		public DataTemplate TrackListTemplate { get; set; }
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
@@ -18,8 +18,12 @@ namespace TunrRT.Controls
 			{
 				case "ArtistList":
 					return ArtistListTemplate;
+                case "AlbumList":
+                    return AlbumListTemplate;
+                case "TrackList":
+                    return TrackListTemplate;
                 default:
-                    return TitleListTemplate;
+                    return TrackListTemplate;
 			}
 		}
 		protected override DataTemplate SelectTemplateCore(object item)

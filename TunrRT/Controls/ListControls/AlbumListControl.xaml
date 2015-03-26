@@ -15,7 +15,7 @@
         <sample:SampleAlbumList />
     </d:Page.DataContext>
     
-    <GridView ItemsSource="{Binding Albums}" SelectionMode="None">
+    <GridView ItemsSource="{Binding Albums}" IsItemClickEnabled="True" SelectionMode="None" ItemClick="GridView_ItemClick">
         <GridView.ItemContainerStyle>
             <Style TargetType="GridViewItem">
                 <Setter Property="Margin" Value="8" />
@@ -26,8 +26,8 @@
         </GridView.ItemContainerStyle>
         <GridView.ItemTemplate>
             <DataTemplate>
-                <Border Width="200" Height="200">
-                    <TextBlock Text="{Binding TagAlbum}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="40" FontWeight="Light" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="6 0 0 0" />
+                <Border Width="128" Height="128">
+                    <TextBlock Text="{Binding TagAlbum}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="28" FontWeight="Light" TextWrapping="WrapWholeWords" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="6 0 0 0" />
                 </Border>
             </DataTemplate>
         </GridView.ItemTemplate>

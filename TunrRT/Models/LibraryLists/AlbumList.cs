@@ -32,7 +32,11 @@ namespace TunrRT.Models
 
             foreach (var album in albums)
             {
-                Comparison<Song> albumComparison = (x, y) => x.TagAlbum.CompareTo(y.TagAlbum);
+                Comparison<Song> albumComparison = (x, y) => {
+                    var xAlbum = x.TagAlbum == null ? "Unknown" : x.TagAlbum;
+                    var yAlbum = y.TagAlbum == null ? "Unknown" : y.TagAlbum;
+                    return xAlbum.CompareTo(yAlbum);
+                };
                 var albumComparer = Comparer<Song>.Create(albumComparison);
                 var index = Array.BinarySearch<Song>(Albums.ToArray(), album, albumComparer);
                 if (index < 0)

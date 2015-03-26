@@ -45,6 +45,23 @@ namespace TunrRT.Models
 		/// </summary>
 		public PropertyInfo TargetProperty { get; set; }
 
+        /// <summary>
+        /// Whether or not this library list should be visible
+        /// </summary>
+        public bool IsVisible
+        {
+            get
+            {
+                return _IsVisible;
+            }
+            set
+            {
+                _IsVisible = value;
+                OnPropertyChanged("IsVisible");
+            }
+        }
+        private bool _IsVisible = true;
+
 		/// <summary>
 		/// The list of filters being applied to this list
 		/// </summary>

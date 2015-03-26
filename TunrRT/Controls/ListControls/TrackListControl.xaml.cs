@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using TunrLibrary.Models;
 using TunrRT.Models;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -18,17 +22,17 @@ using Windows.UI.Xaml.Navigation;
 
 namespace TunrRT.Controls
 {
-    public sealed partial class LibraryBrowser : UserControl
-    {
-        public LibraryBrowser()
-        {
-            this.InitializeComponent();
-        }
+	public sealed partial class TrackListControl : UserControl
+	{
+        public TrackListControl()
+		{
+			this.InitializeComponent();
+		}
 
-        private void ListBackStack_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            var clickedList = (e.ClickedItem as LibraryList);
-            (DataContext as DataSource).GoBackTo(clickedList);
-        }
-    }
+		private void ListView_ItemClick(object sender, ItemClickEventArgs e)
+		{
+			var song = e.ClickedItem as Song;
+			(DataContext as LibraryList).SelectSong(song);
+		}
+	}
 }

@@ -29,10 +29,10 @@ namespace TunrRT.Controls
 			this.InitializeComponent();
 		}
 
-		private void ListView_ItemClick(object sender, ItemClickEventArgs e)
-		{
-			var song = e.ClickedItem as Song;
-			(DataContext as LibraryList).SelectSong(song);
-		}
-	}
+        private void GridView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            var song = e.ClickedItem as Song;
+            (DataContext as LibraryList).SelectSong(song);
+        }
+    }
 }

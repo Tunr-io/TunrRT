@@ -13,10 +13,19 @@
 
     <UserControl.Resources>
         <converter:ToLowercaseConverter x:Key="ToLowercaseConverter" />
+        <converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <DataTemplate x:Key="ArtistListTemplate">
             <local:ArtistListControl DataContext="{Binding}" />
         </DataTemplate>
+        <DataTemplate x:Key="AlbumListTemplate">
+            <local:AlbumListControl DataContext="{Binding}" />
+        </DataTemplate>
+        <DataTemplate x:Key="TrackListTemplate">
+            <local:TrackListControl DataContext="{Binding}" />
+        </DataTemplate>
         <local:LibraryListTemplateSelector x:Key="LibraryListTemplateSelector"
+                                           TrackListTemplate="{StaticResource TrackListTemplate}"
+                                           AlbumListTemplate="{StaticResource AlbumListTemplate}"
 										   ArtistListTemplate="{StaticResource ArtistListTemplate}"/>
     </UserControl.Resources>
 
@@ -26,7 +35,7 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0 0 0 16">
-            <ListView ItemsSource="{Binding BrowseLists}">
+            <ListView x:Name="ListBackStack" ItemsSource="{Binding BrowseLists}" IsItemClickEnabled="True" ItemClick="ListBackStack_ItemClick">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Padding" Value="0" />
@@ -43,12 +52,12 @@
         <ItemsControl Grid.Row="1" ItemsSource="{Binding BrowseLists}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <Grid />
+                    <Grid Grid.Row="1" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <ContentControl VerticalAlignment="Stretch" Content="{Binding}" ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" />
+                    <ContentControl VerticalAlignment="Stretch" Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Content="{Binding}" ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

@@ -76,7 +76,11 @@ namespace TunrRT
         /// <summary>
         /// Associates filtered properties with their data models
         /// </summary>
-        public Dictionary<string, Type> FilterListTypes = new Dictionary<string, Type> { { "TagFirstPerformer", typeof(ArtistList) } };
+        public Dictionary<string, Type> FilterListTypes = new Dictionary<string, Type> {
+            { "TagFirstPerformer", typeof(ArtistList) },
+            { "TagAlbum", typeof(AlbumList) },
+            { "TagTitle", typeof(TrackList) }
+        };
 
         /// <summary>
         /// Contains a list of the actual reflrection propertyinfo objects
@@ -219,8 +223,26 @@ namespace TunrRT
                 Property = targetProperty,
                 Value = propertyValue
             });
-            //var nextList = new LibraryList(this, (string)propertyValue, LibraryFilterTreeProperties[BrowseLists.Count], newFilter);
-            //BrowseLists.Add(nextList);
+
+            var nextProperty = LibraryFilterTreeProperties[BrowseLists.Count];
+            var nextType = FilterListTypes[nextProperty.Name];
+            var nextList = (LibraryList)(Activator.CreateInstance(nextType, this, (string)propertyValue, nextProperty, newFilter));
+            BrowseLists.LastOrDefault().IsVisible = false;
+            BrowseLists.Add(nextList);
+        }
+
+        /// <summary>
+        /// Navigate back to this list in the back-stack
+        /// </summary>
+        /// <param name="list"></param>
+        public void GoBackTo(LibraryList list)
+        {
+            var listIndex = BrowseLists.IndexOf(list);
+            for (int i = BrowseLists.Count - 1; i > listIndex; i--)
+            {
+                BrowseLists.RemoveAt(i);
+            }
+            BrowseLists.LastOrDefault().IsVisible = true;
         }
     }
 }

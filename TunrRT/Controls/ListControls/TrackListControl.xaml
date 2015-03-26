@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="TunrRT.Controls.ArtistListControl"
+    x:Class="TunrRT.Controls.TrackListControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:TunrRT.Controls"
@@ -12,10 +12,10 @@
     d:DesignWidth="480">
 
     <d:Page.DataContext>
-        <sample:SampleArtistList />
+        <sample:SampleAlbumList />
     </d:Page.DataContext>
-
-    <ListView ItemsSource="{Binding Artists}" IsItemClickEnabled="True" ItemClick="ListView_ItemClick">
+    
+    <ListView ItemsSource="{Binding Tracks}" SelectionMode="None">
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
                 <Setter Property="Padding" Value="0 8" />
@@ -23,9 +23,11 @@
         </ListView.ItemContainerStyle>
         <ListView.ItemTemplate>
             <DataTemplate>
-                <TextBlock Text="{Binding TagFirstPerformer}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="25" FontWeight="Normal" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding TagTrack}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="18" FontWeight="Bold" TextWrapping="NoWrap" HorizontalAlignment="Left" />
+                    <TextBlock Text="{Binding TagTitle}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="22" FontWeight="Light" TextWrapping="NoWrap" HorizontalAlignment="Left" />
+                </StackPanel>
             </DataTemplate>
         </ListView.ItemTemplate>
     </ListView>
-	
 </UserControl>
