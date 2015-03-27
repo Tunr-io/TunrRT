@@ -54,7 +54,7 @@
                 </ListView.ItemTemplate>
             </ListView>
         </StackPanel>
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding BrowseLists}">
+        <ItemsControl x:Name="LibraryBrowseList" Grid.Row="1" ItemsSource="{Binding BrowseLists}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid Grid.Row="1" />
@@ -62,7 +62,11 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <ContentControl VerticalAlignment="Stretch" Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Content="{Binding}" ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" />
+                    <ContentControl Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Stretch" Content="{Binding}" ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" Loaded="ContentControl_Loaded">
+                        <ContentControl.Projection>
+                            <PlaneProjection GlobalOffsetZ="0" />
+                        </ContentControl.Projection>
+                    </ContentControl>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
