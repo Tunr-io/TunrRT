@@ -39,6 +39,11 @@ namespace TunrRT
         public ObservableCollection<LibraryList> BrowseLists { get; set; }
 
         /// <summary>
+        /// Current playlist to be displayed to the user
+        /// </summary>
+        public ObservableCollection<PlaylistItem> PlaylistItems { get; set; }
+
+        /// <summary>
         /// Is busy boolean. Bind indeterminate progress bar to this to determine
         /// if we're ever busy doing something.
         /// </summary>
@@ -119,8 +124,15 @@ namespace TunrRT
 
         public DataSource()
         {
-            // Instantiate browselists
             BrowseLists = new ObservableCollection<LibraryList>();
+            PlaylistItems = new ObservableCollection<PlaylistItem>();
+
+            // Load playlist items
+            var loadedPlaylist = LibraryManager.FetchPlaylistItems(Guid.Empty).Result;
+            foreach (var pitem in loadedPlaylist)
+            {
+                PlaylistItems.Add(pitem);
+            }
 
             // Set auth if we've authenticated in the past...
             if (ApplicationData.Current.LocalSettings.Values.ContainsKey("Authentication"))
@@ -206,16 +218,15 @@ namespace TunrRT
 		/// </summary>
 		/// <param name="target">Selected song</param>
 		/// <param name="targetProperty">Property on which to filter the next list</param>
-		public void SelectFilter(Song target, PropertyInfo targetProperty)
+		public async void SelectFilter(Song target, PropertyInfo targetProperty)
         {
-            //if (targetProperty.Name.ToLower() == "tagtitle")
-            //{
-            //    await LibraryManager.AddSongToPlaylistAsync(target);
-            //    PlaylistItems.Add(target);
-            //    OnPropertyChanged("PlaylistItems");
-            //    ((App.Current) as App).BackgroundAudioHandler.Play();
-            //    return;
-            //}
+            if (targetProperty.Equals(LibraryFilterTreeProperties.LastOrDefault()))
+            {
+                var newPlaylistItem = await LibraryManager.AddSongToPlaylistAsync(target);
+                PlaylistItems.Add(newPlaylistItem);
+                ((App.Current) as App).BackgroundAudioHandler.Play();
+                return;
+            }
             var propertyValue = targetProperty.GetValue(target, null);
             var newFilter = new List<SongFilter>(BrowseLists.Last().Filters);
             newFilter.Add(new SongFilter()

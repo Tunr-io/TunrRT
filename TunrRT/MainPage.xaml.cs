@@ -47,10 +47,5 @@ namespace TunrRT
             (DataContext as DataSource).Synchronize();
 #pragma warning restore CS4014
         }
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

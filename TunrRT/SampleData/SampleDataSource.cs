@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TunrLibrary.Models;
 using TunrRT.Models;
 
@@ -22,6 +19,19 @@ namespace TunrRT.SampleData
                 });
             }
             BrowseLists.Add(artists);
+
+            PlaylistItems.Clear();
+            for (int i = 0; i < 20; i++)
+            {
+                PlaylistItems.Add(new PlaylistItem()
+                {
+                    Song = new Song()
+                    {
+                        TagTitle = "Test Track " + i,
+                        TagFirstPerformer = "Test Artist " + i
+                    }
+                });
+            }
         }
     }
 }

@@ -29,6 +29,18 @@ namespace TunrRT
         private TransitionCollection transitions;
 
         /// <summary>
+        /// Singleton reference to the app's background audio handler
+        /// </summary>
+        public BackgroundAudioHandler BackgroundAudioHandler
+        {
+            get
+            {
+                return this._BackgroundAudioHandler;
+            }
+        }
+        private BackgroundAudioHandler _BackgroundAudioHandler = new BackgroundAudioHandler();
+
+        /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>

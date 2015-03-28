@@ -145,7 +145,7 @@ namespace TunrLibrary
 		/// </summary>
 		/// <param name="song">Song to add</param>
 		/// <returns></returns>
-		public static async Task AddSongToPlaylistAsync(Song song)
+		public static async Task<PlaylistItem> AddSongToPlaylistAsync(Song song)
         {
             var lastItem = PlaylistItems.IndexQueryByKey("PlaylistFK", Guid.Empty).ToList().OrderByDescending(p => p.Order).Take(1).FirstOrDefault();
             int order = 0;
@@ -153,7 +153,9 @@ namespace TunrLibrary
             {
                 order = lastItem.Order + 1;
             }
-            await PlaylistItems.SaveAsync(new PlaylistItem() { PlaylistFK = Guid.Empty, PlaylistItemId = Guid.NewGuid(), Order = order, SongFK = song.SongId });
+            var newPlaylistItem = new PlaylistItem() { PlaylistFK = Guid.Empty, PlaylistItemId = Guid.NewGuid(), Order = order, SongFK = song.SongId };
+            await PlaylistItems.SaveAsync(newPlaylistItem);
+            return newPlaylistItem;
         }
 
         /// <summary>

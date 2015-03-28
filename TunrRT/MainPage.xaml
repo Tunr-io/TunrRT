@@ -10,7 +10,7 @@
     xmlns:sample="using:TunrRT.SampleData"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-    DataContext="{Binding Source={StaticResource Data}}" Loaded="Page_Loaded">
+    DataContext="{Binding Source={StaticResource Data}}">
 
     <i:Interaction.Behaviors>
         <local:ProgressBehavior IsVisible="{Binding IsBusy}" Text="Working . . ."/>
@@ -46,6 +46,24 @@
                 <HubSection.Header>
                     <TextBlock Text="playlist" Foreground="White" FontFamily="Segoe WP" FontWeight="Light" FontSize="48" />
                 </HubSection.Header>
+                <DataTemplate>
+                    <ListView ItemsSource="{Binding PlaylistItems}">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="0 8" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical">
+                                    <TextBlock Text="{Binding Song.TagTitle}" Foreground="{StaticResource PhoneForegroundBrush}" FontSize="24" FontWeight="Bold" />
+                                    <TextBlock Text="{Binding Song.TagFirstPerformer}" Foreground="{ThemeResource PhoneMidBrush}" FontFamily="Global User Interface" FontSize="16" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </DataTemplate>
             </HubSection>
             <HubSection Tag="2">
                 <DataTemplate>
