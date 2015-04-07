@@ -10,6 +10,27 @@ namespace TunrRT
     static class ApplicationSettingsHelper
     {
         /// <summary>
+        /// Function to read a setting value
+        /// </summary>
+        /// <param name="key">key of the setting</param>
+        /// <returns>value stored in this key</returns>
+        public static object ReadSettingsValue(string key)
+        {
+            Debug.WriteLine(key);
+            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(key))
+            {
+                Debug.WriteLine("null returned");
+                return null;
+            }
+            else
+            {
+                var value = ApplicationData.Current.LocalSettings.Values[key];
+                Debug.WriteLine("value found " + value.ToString());
+                return value;
+            }
+        }
+
+        /// <summary>
         /// Function to read a setting value and clear it after reading it
         /// </summary>
         public static object ReadResetSettingsValue(string key)

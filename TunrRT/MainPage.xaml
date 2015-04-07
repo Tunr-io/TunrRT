@@ -1,4 +1,5 @@
 ﻿<Page
+    x:Name="Main"
     x:Class="TunrRT.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,6 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:helpers="using:TunrRT.Helpers"
     xmlns:sample="using:TunrRT.SampleData"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
@@ -17,7 +19,7 @@
     </i:Interaction.Behaviors>
 
     <Grid>
-        <Hub>
+        <Hub x:Name="Hub" SectionsInViewChanged="Hub_SectionsInViewChanged">
             <HubSection Tag="0" Background="White">
                 <HubSection.Style>
                     <Style TargetType="HubSection">
@@ -47,7 +49,16 @@
                     <TextBlock Text="playlist" Foreground="White" FontFamily="Segoe WP" FontWeight="Light" FontSize="48" />
                 </HubSection.Header>
                 <DataTemplate>
-                    <ListView ItemsSource="{Binding PlaylistItems}">
+                    <ListView x:Name="ListPlaylist" 
+                            SelectionMode="None"
+                            IsItemClickEnabled="True"
+						    IsHoldingEnabled="True"
+                            ItemsSource="{Binding PlaylistItems}"
+                            Loaded="ListPlaylist_Loaded"
+                            ItemClick="ListPlaylist_ItemClick"
+                            Tapped="ListPlaylist_Tapped"
+                            Holding="ListPlaylist_Holding"
+                            ReorderMode="{Binding ElementName=Main, Path=PlaylistReorderMode}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="Padding" Value="0 8" />
@@ -68,8 +79,8 @@
             <HubSection Tag="2">
                 <DataTemplate>
                     <StackPanel Orientation="Vertical" Margin="0,24,0,0">
-                        <TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="SONG TITLE" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
-                        <TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="THE ARTIST NAME" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
+                        <TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="{Binding PlayingSong.TagTitle}" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
+                        <TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="{Binding PlayingSong.TagFirstPerformer}" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
                         <Rectangle HorizontalAlignment="Left" Width="240" Height="240" Margin="0,8,0,8" Fill="#FF202020" />
                         <StackPanel Orientation="Horizontal">
                             <Button x:Name="PrevButton" Style="{StaticResource ButtonNowPlayingStyle}">
@@ -89,4 +100,20 @@
             </HubSection>
         </Hub>
     </Grid>
+
+    <Page.BottomAppBar>
+        <CommandBar x:Name="CommandBar">
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Name="AppBarSearch" Label="search" Icon="Find"></AppBarButton>
+                <AppBarButton Name="AppBarClearList" Label="clear playlist" Icon="Delete"></AppBarButton>
+                <AppBarButton Name="AppBarRepeat" Label="repeat" Icon="RepeatAll"></AppBarButton>
+                <AppBarButton Name="AppBarShuffle" Label="shuffle" Icon="Shuffle"></AppBarButton>
+                <!-- Playlist edit mode commands -->
+                <AppBarButton Name="AppBarPlaylistRemove" Label="remove" Icon="Remove" Visibility="Collapsed"></AppBarButton>
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Name="AppBarLogout" Label="log out"></AppBarButton>
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
 </Page>

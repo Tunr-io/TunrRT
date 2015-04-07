@@ -17,6 +17,24 @@ namespace TunrRT
     {
         private AutoResetEvent BackgroundTaskInitialized = new AutoResetEvent(false);
         private bool _BackgroundTaskRunning = false;
+
+        public event EventHandler TrackChanged;
+
+        protected void OnTrackChanged()
+        {
+            // Make a temporary copy of the event to avoid possibility of 
+            // a race condition if the last subscriber unsubscribes 
+            // immediately after the null check and before the event is raised.
+            EventHandler handler = TrackChanged;
+
+            // Event will be null if there are no subscribers 
+            if (handler != null)
+            {
+                // Use the () operator to raise the event.
+                handler(this, null);
+            }
+        }
+
         /// <summary>
         /// Gets the information about background task is running or not by reading the setting saved by background task
         /// </summary>
@@ -70,7 +88,7 @@ namespace TunrRT
                 switch (key)
                 {
                     case Constants.Trackchanged:
-                        //When foreground app is active change track based on background message
+                        OnTrackChanged();
                         break;
                     case Constants.BackgroundTaskStarted:
                         //Wait for Background Task to be initialized before starting playback

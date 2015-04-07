@@ -14,7 +14,9 @@ using TunrLibrary;
 using TunrLibrary.Models;
 using TunrRT.DataModel.Models;
 using TunrRT.Models;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.UI.Core;
 
 namespace TunrRT
 {
@@ -42,6 +44,23 @@ namespace TunrRT
         /// Current playlist to be displayed to the user
         /// </summary>
         public ObservableCollection<PlaylistItem> PlaylistItems { get; set; }
+
+        /// <summary>
+        /// Refers to the song that is currently being played.
+        /// </summary>
+        public Song PlayingSong
+        {
+            get
+            {
+                return _PlayingSong;
+            }
+            set
+            {
+                _PlayingSong = value;
+                OnPropertyChanged("PlayingSong");
+            }
+        }
+        private Song _PlayingSong;
 
         /// <summary>
         /// Is busy boolean. Bind indeterminate progress bar to this to determine
@@ -126,6 +145,8 @@ namespace TunrRT
         {
             BrowseLists = new ObservableCollection<LibraryList>();
             PlaylistItems = new ObservableCollection<PlaylistItem>();
+            (App.Current as App).BackgroundAudioHandler.TrackChanged += BackgroundAudioHandler_TrackChanged;
+            UpdatePlayingSong();
 
             // Load playlist items
             var loadedPlaylist = LibraryManager.FetchPlaylistItems(Guid.Empty).Result;
@@ -147,6 +168,25 @@ namespace TunrRT
             var firstType = FilterListTypes[firstProperty.Name];
             var firstList = (LibraryList)(Activator.CreateInstance(firstType, this, "Music", LibraryFilterTreeProperties.FirstOrDefault(), new List<SongFilter>()));
             BrowseLists.Add(firstList);
+        }
+
+        public async void UpdatePlayingSong()
+        {
+            object nowPlayingItem = ApplicationSettingsHelper.ReadSettingsValue(Constants.CurrentPlaylistItemId);
+            if (nowPlayingItem == null)
+            {
+                PlayingSong = null;
+            }
+            var playlistItem = await LibraryManager.FetchPlaylistItem((Guid)nowPlayingItem);
+            PlayingSong = playlistItem.Song;
+        }
+
+        private async void BackgroundAudioHandler_TrackChanged(object sender, EventArgs e)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+             {
+                 UpdatePlayingSong();
+             });
         }
 
         private void LibraryManager_LibraryUpdate(object sender, EventArgs e)

@@ -360,13 +360,13 @@ namespace TunrBackgroundAudioTask
             sender.Play();
             Debug.WriteLine("New Track: " + CurrentSong.TagTitle);
             UpdateUVCOnNewTrack();
-            if (foregroundAppState == ForegroundAppStatus.Active)
-            {
+            //if (foregroundAppState == ForegroundAppStatus.Active)
+            //{
                 //Message channel that can be used to send messages to foreground
                 ValueSet message = new ValueSet();
                 message.Add(Constants.Trackchanged, CurrentPlaylistItem.PlaylistItemId.ToString());
                 BackgroundMediaPlayer.SendMessageToForeground(message);
-            }
+            //}
         }
         #endregion
 
@@ -438,6 +438,8 @@ namespace TunrBackgroundAudioTask
 
             MediaPlayerInstance.AutoPlay = false;
 
+            ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentPlaylistItemId, playlistItem.PlaylistItemId);
+
             // Set the start position, we set the position once the state changes to playing, 
             // it can be possible for a fraction of second, playback can start before we are 
             // able to seek to new start position
@@ -445,6 +447,7 @@ namespace TunrBackgroundAudioTask
             CurrentStartPosition = position;
             Debug.WriteLine(TUNRURL + "/stream/" + song.SongId);
             MediaPlayerInstance.SetUriSource(new Uri(TUNRURL + "/stream/" + song.SongId));
+            
         }
 
         #endregion
