@@ -110,7 +110,9 @@
       <DependentUpon>ArtistListControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="Converters\ToLowercaseConverter.cs" />
+    <Compile Include="Converters\ValueConverterGroup.cs" />
     <Compile Include="DataSource.cs" />
     <Compile Include="Helpers\WindowDimensionBehavior.cs" />
     <Compile Include="LoginPage.xaml.cs">

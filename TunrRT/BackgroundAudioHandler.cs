@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,12 +15,33 @@ using Windows.UI.Core;
 
 namespace TunrRT
 {
-    public class BackgroundAudioHandler
+    public class BackgroundAudioHandler : INotifyPropertyChanged
     {
         private AutoResetEvent BackgroundTaskInitialized = new AutoResetEvent(false);
         private bool _BackgroundTaskRunning = false;
 
         public event EventHandler TrackChanged;
+
+        public MediaPlayerState PlayerState {
+            get
+            {
+                if (!BackgroundTaskRunning)
+                {
+                    return MediaPlayerState.Closed;
+                }
+                return BackgroundMediaPlayer.Current.CurrentState;
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
 
         protected void OnTrackChanged()
         {
@@ -101,6 +124,7 @@ namespace TunrRT
 
         private void BackgroundMediaPlayer_CurrentStateChanged(MediaPlayer sender, object args)
         {
+            OnPropertyChanged("PlayerState");
             switch (sender.CurrentState)
             {
                 case MediaPlayerState.Playing:

@@ -63,6 +63,16 @@ namespace TunrRT
         private Song _PlayingSong;
 
         /// <summary>
+        /// Returns true if the background task is currently playing
+        /// </summary>
+        public bool IsPlaying {
+            get
+            {
+                return (App.Current as App).BackgroundAudioHandler.PlayerState == Windows.Media.Playback.MediaPlayerState.Playing;
+            }
+        }
+
+        /// <summary>
         /// Is busy boolean. Bind indeterminate progress bar to this to determine
         /// if we're ever busy doing something.
         /// </summary>
@@ -145,6 +155,7 @@ namespace TunrRT
         {
             BrowseLists = new ObservableCollection<LibraryList>();
             PlaylistItems = new ObservableCollection<PlaylistItem>();
+            (App.Current as App).BackgroundAudioHandler.PropertyChanged += BackgroundAudioHandler_PropertyChanged;
             (App.Current as App).BackgroundAudioHandler.TrackChanged += BackgroundAudioHandler_TrackChanged;
             UpdatePlayingSong();
 
@@ -170,12 +181,21 @@ namespace TunrRT
             BrowseLists.Add(firstList);
         }
 
+        private void BackgroundAudioHandler_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "PlayerState")
+            {
+                OnPropertyChanged("IsPlaying");
+            }
+        }
+
         public async void UpdatePlayingSong()
         {
             object nowPlayingItem = ApplicationSettingsHelper.ReadSettingsValue(Constants.CurrentPlaylistItemId);
             if (nowPlayingItem == null)
             {
                 PlayingSong = null;
+                return;
             }
             var playlistItem = await LibraryManager.FetchPlaylistItem((Guid)nowPlayingItem);
             PlayingSong = playlistItem.Song;
