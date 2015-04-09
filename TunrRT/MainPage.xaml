@@ -10,9 +10,20 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:helpers="using:TunrRT.Helpers"
     xmlns:sample="using:TunrRT.SampleData"
+    xmlns:converters="using:TunrRT.Converters"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     DataContext="{Binding Source={StaticResource Data}}">
+    
+    <Page.Resources>
+        <ResourceDictionary>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:ValueConverterGroup x:Key="InverseBooleanToVisibilityConverter">
+                <converters:InverseBooleanConverter />
+                <converters:BooleanToVisibilityConverter />
+            </converters:ValueConverterGroup>
+        </ResourceDictionary>
+    </Page.Resources>
 
     <i:Interaction.Behaviors>
         <local:ProgressBehavior IsVisible="{Binding IsBusy}" Text="Working . . ."/>
@@ -87,7 +98,10 @@
                                 <Path Data="F1 M 0,0 L 0,76.8 -48,38.4 z
 									M -48,38.4 L -48,76.8 -76.8,76.8 -76.8,0 -48,0 z" Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
                             </Button>
-                            <Button x:Name="PlayButton" Style="{StaticResource ButtonNowPlayingStyle}">
+                            <Button x:Name="PauseButton" Style="{StaticResource ButtonNowPlayingStyle}" Visibility="{Binding IsPlaying, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Paused" />
+                            </Button>
+                            <Button x:Name="PlayButton" Style="{StaticResource ButtonNowPlayingStyle}" Visibility="{Binding IsPlaying, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
                                 <Path Data="F1 M 91.68,53.28 L 14.88,91.68 14.88,14.88 z"  Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
                             </Button>
                             <Button x:Name="NextButton" Style="{StaticResource ButtonNowPlayingStyle}">

@@ -229,7 +229,6 @@ namespace TunrBackgroundAudioTask
         /// <summary>
         /// Start playlist and change UVC state
         /// </summary>
-
         private async void StartPlayback()
         {
             try
