@@ -84,7 +84,7 @@
       <Project>{154db533-ad1b-444c-a78f-d86e88262c91}</Project>
       <Name>TunrBackgroundAudioTask</Name>
     </ProjectReference>
-    <ProjectReference Include="TunrLibrary\TunrLibrary.csproj">
+    <ProjectReference Include="..\TunrLibrary\TunrLibrary.csproj">
       <Project>{824c79de-fd58-4dcb-9d6c-d42a9e64ccb3}</Project>
       <Name>TunrLibrary</Name>
     </ProjectReference>
@@ -95,7 +95,7 @@
     </Compile>
     <Compile Include="ApplicationSettingsHelper.cs" />
     <Compile Include="BackgroundAudioHandler.cs" />
-    <Compile Include="Constants.cs" />
+    <Compile Include="GlobalConstants.cs" />
     <Compile Include="Controls\LibraryBrowser.xaml.cs">
       <DependentUpon>LibraryBrowser.xaml</DependentUpon>
     </Compile>

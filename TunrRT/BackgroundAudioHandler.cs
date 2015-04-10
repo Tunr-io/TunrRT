@@ -68,14 +68,14 @@ namespace TunrRT
                 if (_BackgroundTaskRunning)
                     return true;
 
-                object value = ApplicationSettingsHelper.ReadResetSettingsValue(Constants.BackgroundTaskState);
+                object value = ApplicationSettingsHelper.ReadResetSettingsValue(GlobalConstants.BackgroundTaskState);
                 if (value == null)
                 {
                     return false;
                 }
                 else
                 {
-                    _BackgroundTaskRunning = ((String)value).Equals(Constants.BackgroundTaskRunning);
+                    _BackgroundTaskRunning = ((String)value).Equals(GlobalConstants.BackgroundTaskRunning);
                     return _BackgroundTaskRunning;
                 }
             }
@@ -110,10 +110,10 @@ namespace TunrRT
             {
                 switch (key)
                 {
-                    case Constants.Trackchanged:
+                    case GlobalConstants.Trackchanged:
                         OnTrackChanged();
                         break;
-                    case Constants.BackgroundTaskStarted:
+                    case GlobalConstants.BackgroundTaskStarted:
                         //Wait for Background Task to be initialized before starting playback
                         Debug.WriteLine("Background Task started");
                         BackgroundTaskInitialized.Set();
@@ -151,7 +151,7 @@ namespace TunrRT
                 if (result == true)
                 {
                     var message = new ValueSet();
-                    message.Add(Constants.StartPlayback, "0");
+                    message.Add(GlobalConstants.StartPlayback, "0");
                     BackgroundMediaPlayer.SendMessageToBackground(message);
                 }
                 else

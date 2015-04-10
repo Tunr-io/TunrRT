@@ -16,16 +16,6 @@ using Windows.Media.Playback;
 namespace TunrBackgroundAudioTask
 {
     /// <summary>
-    /// Enum to identify foreground app state
-    /// </summary>
-    enum ForegroundAppStatus
-    {
-        Active,
-        Suspended,
-        Unknown
-    }
-
-    /// <summary>
     /// Impletements IBackgroundTask to provide an entry point for app code to be run in background. 
     /// Also takes care of handling UVC and communication channel with foreground
     /// </summary>
@@ -33,34 +23,103 @@ namespace TunrBackgroundAudioTask
     {
 
         #region Private fields, properties
-        private static readonly string TUNRURL = "https://play.tunr.io";
         private SystemMediaTransportControls Smtc;
         private BackgroundTaskDeferral deferral; // Used to keep task alive
-        private ForegroundAppStatus foregroundAppState = ForegroundAppStatus.Unknown;
         private AutoResetEvent BackgroundTaskStarted = new AutoResetEvent(false);
-        private bool backgroundtaskrunning = false;
-        private PlaylistItem CurrentPlaylistItem;
-        private Song CurrentSong;
+        private bool IsBackgroundTaskRunning = false;
+
+        /// <summary>
+        /// The GUID of the currently selected playlist.
+        /// Loaded from application settings if not present in memory.
+        /// </summary>
+        private Guid? CurrentPlaylistId {
+            get
+            {
+                if (currentPlaylistId == null)
+                {
+                    currentPlaylistId = (ApplicationSettingsHelper.ReadResetSettingsValue(GlobalConstants.KeyCurrentPlaylistId)) as Guid?;
+                }
+                return currentPlaylistId;
+            }
+            set
+            {
+                if (value != currentPlaylistId)
+                {
+                    currentPlaylistId = value;
+                    ApplicationSettingsHelper.SaveSettingsValue(GlobalConstants.KeyCurrentPlaylistId, currentPlaylistId);
+                }
+            }
+        }
+        private Guid? currentPlaylistId;
+
+        /// <summary>
+        /// The currently playing playlist item.
+        /// Loaded from application settings if not present in memory.
+        /// </summary>
+        private PlaylistItem CurrentPlaylistItem {
+            get
+            {
+                if (currentPlaylistItem == null)
+                {
+                    var currentPlaylistItemId = (ApplicationSettingsHelper.ReadResetSettingsValue(GlobalConstants.KeyCurrentPlaylistItemId)) as Guid?;
+                    if (currentPlaylistItemId != null)
+                    {
+                        currentPlaylistItem = LibraryManager.FetchPlaylistItem((Guid)currentPlaylistItemId);
+                    }
+                }
+                return currentPlaylistItem;
+            }
+            set
+            {
+                if (value != currentPlaylistItem)
+                {
+                    currentPlaylistItem = value;
+                    ApplicationSettingsHelper.SaveSettingsValue(GlobalConstants.KeyCurrentPlaylistItemId, currentPlaylistItem.PlaylistItemId);
+                    UpdateUvcMetadata(); // Update the UVC metadata when we switch songs
+                    // Let the foreground app know we've changed tracks
+                    ValueSet message = new ValueSet();
+                    message.Add(GlobalConstants.KeyTrackChanged, CurrentPlaylistItem.PlaylistItemId.ToString());
+                    BackgroundMediaPlayer.SendMessageToForeground(message);
+                }
+            }
+        }
+        private PlaylistItem currentPlaylistItem;
+
+        /// <summary>
+        /// The currently playing song from the current playlist item.
+        /// </summary>
+        private Song CurrentSong {
+            get
+            {
+                return CurrentPlaylistItem == null ? null : CurrentPlaylistItem.Song;
+            }
+        }
+
         private TimeSpan CurrentStartPosition = TimeSpan.FromSeconds(0);
-        private MediaPlayer _MediaPlayerInstance;
+        
+        /// <summary>
+        /// The current instance of the media player
+        /// Creates a new one if null
+        /// </summary>
         private MediaPlayer MediaPlayerInstance
         {
             get
             {
-                if (_MediaPlayerInstance == null)
+                if (mediaPlayerInstance == null)
                 {
-                    _MediaPlayerInstance = BackgroundMediaPlayer.Current;
-                    _MediaPlayerInstance.MediaOpened += MediaPlayerInstance_MediaOpened;
-                    _MediaPlayerInstance.MediaEnded += MediaPlayerInstance_MediaEnded;
-                    _MediaPlayerInstance.CurrentStateChanged += MediaPlayerInstance_CurrentStateChanged;
-                    _MediaPlayerInstance.MediaFailed += MediaPlayerInstance_MediaFailed;
+                    mediaPlayerInstance = BackgroundMediaPlayer.Current;
+                    mediaPlayerInstance.MediaOpened += MediaPlayerInstance_MediaOpened;
+                    mediaPlayerInstance.MediaEnded += MediaPlayerInstance_MediaEnded;
+                    mediaPlayerInstance.CurrentStateChanged += MediaPlayerInstance_CurrentStateChanged;
+                    mediaPlayerInstance.MediaFailed += MediaPlayerInstance_MediaFailed;
                 }
-                return _MediaPlayerInstance;
+                return mediaPlayerInstance;
             }
         }
+        private MediaPlayer mediaPlayerInstance;
         #endregion
 
-        #region IBackgroundTask and IBackgroundTaskInstance Interface Members and handlers
+        #region IBackgroundTask and IBackgroundTaskInstance members and handlers
         /// <summary>
         /// The Run method is the entry point of a background task. 
         /// </summary>
@@ -68,12 +127,11 @@ namespace TunrBackgroundAudioTask
         public void Run(IBackgroundTaskInstance taskInstance)
         {
             Debug.WriteLine("Background Audio Task " + taskInstance.Task.Name + " starting...");
-            // Initialize SMTC object to talk with UVC. 
-            //Note that, this is intended to run after app is paused and 
-            //hence all the logic must be written to run in background process
+
+            // Initialize SMTC object to talk with UVC.
             Smtc = SystemMediaTransportControls.GetForCurrentView();
-            Smtc.ButtonPressed += systemmediatransportcontrol_ButtonPressed;
-            Smtc.PropertyChanged += systemmediatransportcontrol_PropertyChanged;
+            Smtc.ButtonPressed += Smtc_ButtonPressed;
+            Smtc.PropertyChanged += Smtc_PropertyChanged;
             Smtc.IsEnabled = true;
             Smtc.IsPauseEnabled = true;
             Smtc.IsPlayEnabled = true;
@@ -82,38 +140,26 @@ namespace TunrBackgroundAudioTask
 
             // Associate a cancellation and completed handlers with the background task.
             taskInstance.Canceled += new BackgroundTaskCanceledEventHandler(OnCanceled);
-            taskInstance.Task.Completed += Taskcompleted;
+            taskInstance.Task.Completed += TaskCompleted;
 
-            var value = ApplicationSettingsHelper.ReadResetSettingsValue(Constants.AppState);
-            if (value == null)
-                foregroundAppState = ForegroundAppStatus.Unknown;
-            else
-                foregroundAppState = (ForegroundAppStatus)Enum.Parse(typeof(ForegroundAppStatus), value.ToString());
-
-            //Add handlers for MediaPlayer
+            // Add handlers for MediaPlayer
             BackgroundMediaPlayer.Current.CurrentStateChanged += Current_CurrentStateChanged;
 
-            //Initialize message channel 
+            // Initialize message channel 
             BackgroundMediaPlayer.MessageReceivedFromForeground += BackgroundMediaPlayer_MessageReceivedFromForeground;
 
-            //Send information to foreground that background task has been started if app is active
-            if (foregroundAppState != ForegroundAppStatus.Suspended)
-            {
-                ValueSet message = new ValueSet();
-                message.Add(Constants.BackgroundTaskStarted, "");
-                BackgroundMediaPlayer.SendMessageToForeground(message);
-            }
+            // Mark background task as running
             BackgroundTaskStarted.Set();
-            backgroundtaskrunning = true;
+            IsBackgroundTaskRunning = true;
+            ApplicationSettingsHelper.SaveSettingsValue(GlobalConstants.KeyBackgroundTaskState, GlobalConstants.BackgroundTaskStateRunning);
 
-            ApplicationSettingsHelper.SaveSettingsValue(Constants.BackgroundTaskState, Constants.BackgroundTaskRunning);
             deferral = taskInstance.GetDeferral();
         }
 
         /// <summary>
         /// Indicate that the background task is completed.
         /// </summary>       
-        void Taskcompleted(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
+        void TaskCompleted(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
             Debug.WriteLine("MyBackgroundAudioTask " + sender.TaskId + " Completed...");
             deferral.Complete();
@@ -128,18 +174,17 @@ namespace TunrBackgroundAudioTask
         private void OnCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
         {
             // You get some time here to save your state before process and resources are reclaimed
-            Debug.WriteLine("TunrBackgroundAudioTask " + sender.Task.TaskId + " Cancel Requested...");
+            Debug.WriteLine("TunrBackgroundAudioTask " + sender.Task.TaskId + " task cancellation Requested...");
             try
             {
                 //save state
-                ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentPlaylistItemId, CurrentPlaylistItem.PlaylistItemId);
-                ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentStartPosition, BackgroundMediaPlayer.Current.Position.ToString());
-                ApplicationSettingsHelper.SaveSettingsValue(Constants.BackgroundTaskState, Constants.BackgroundTaskCancelled);
-                ApplicationSettingsHelper.SaveSettingsValue(Constants.AppState, Enum.GetName(typeof(ForegroundAppStatus), foregroundAppState));
-                backgroundtaskrunning = false;
+                ApplicationSettingsHelper.SaveSettingsValue(GlobalConstants.KeyCurrentStartPosition, BackgroundMediaPlayer.Current.Position.ToString());
+                ApplicationSettingsHelper.SaveSettingsValue(GlobalConstants.KeyBackgroundTaskState, GlobalConstants.BackgroundTaskStateCancelled);
+                IsBackgroundTaskRunning = false;
+
                 //unsubscribe event handlers
-                Smtc.ButtonPressed -= systemmediatransportcontrol_ButtonPressed;
-                Smtc.PropertyChanged -= systemmediatransportcontrol_PropertyChanged;
+                Smtc.ButtonPressed -= Smtc_ButtonPressed;
+                Smtc.PropertyChanged -= Smtc_PropertyChanged;
 
                 BackgroundMediaPlayer.Shutdown(); // shutdown media pipeline
             }
@@ -148,32 +193,17 @@ namespace TunrBackgroundAudioTask
                 Debug.WriteLine(ex.ToString());
             }
             deferral.Complete(); // signals task completion. 
-            Debug.WriteLine("TunrBackgroundAudioTask Cancel complete...");
+            Debug.WriteLine("TunrBackgroundAudioTask cancellation complete...");
         }
         #endregion
 
-        #region SysteMediaTransportControls related functions and handlers
-        /// <summary>
-        /// Update UVC using SystemMediaTransPortControl apis
-        /// </summary>
-        private void UpdateUVCOnNewTrack()
-        {
-            Smtc.PlaybackStatus = MediaPlaybackStatus.Playing;
-            Smtc.DisplayUpdater.Type = MediaPlaybackType.Music;
-            Smtc.DisplayUpdater.MusicProperties.Title = CurrentSong.TagTitle;
-            Smtc.DisplayUpdater.MusicProperties.Artist = CurrentSong.TagPerformers.FirstOrDefault();
-            Smtc.DisplayUpdater.Update();
-        }
-
+        #region SystemMediaTransportControls related functions and handlers
         /// <summary>
         /// Fires when any SystemMediaTransportControl property is changed by system or user
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        void systemmediatransportcontrol_PropertyChanged(SystemMediaTransportControls sender, SystemMediaTransportControlsPropertyChangedEventArgs args)
-        {
-            //TODO: If soundlevel turns to muted, app can choose to pause the music
-        }
+        private void Smtc_PropertyChanged(SystemMediaTransportControls sender, SystemMediaTransportControlsPropertyChangedEventArgs args) { }
 
         /// <summary>
         /// This function controls the button events from UVC.
@@ -181,21 +211,21 @@ namespace TunrBackgroundAudioTask
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        private void systemmediatransportcontrol_ButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
+        private void Smtc_ButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
         {
             switch (args.Button)
             {
                 case SystemMediaTransportControlsButton.Play:
                     Debug.WriteLine("UVC play button pressed");
-                    // If music is in paused state, for a period of more than 5 minutes, 
-                    //app will get task cancellation and it cannot run code. 
-                    //However, user can still play music by pressing play via UVC unless a new app comes in clears UVC.
-                    //When this happens, the task gets re-initialized and that is asynchronous and hence the wait
-                    if (!backgroundtaskrunning)
+                    // Make sure our background task starts back up
+                    // if we press play after the background task was cancelled
+                    if (!IsBackgroundTaskRunning)
                     {
                         bool result = BackgroundTaskStarted.WaitOne(2000);
                         if (!result)
+                        {
                             throw new Exception("Background Task didnt initialize in time");
+                        }
                     }
                     StartPlayback();
                     break;
@@ -221,51 +251,38 @@ namespace TunrBackgroundAudioTask
             }
         }
 
-
-
+        /// <summary>
+        /// Update UVC using SystemMediaTransPortControl apis
+        /// </summary>
+        private void UpdateUvcMetadata()
+        {
+            Smtc.DisplayUpdater.Type = MediaPlaybackType.Music;
+            Smtc.DisplayUpdater.MusicProperties.Title = CurrentSong.TagTitle;
+            Smtc.DisplayUpdater.MusicProperties.Artist = CurrentSong.TagPerformers.FirstOrDefault();
+            Smtc.DisplayUpdater.Update();
+        }
         #endregion
 
         #region Playlist management functions and handlers
         /// <summary>
         /// Start playlist and change UVC state
         /// </summary>
-        private async void StartPlayback()
+        private void StartPlayback()
         {
             try
             {
                 if (CurrentPlaylistItem == null)
                 {
-                    //If the task was cancelled we would have saved the current track and its position. We will try playback from there
-                    PlaylistItem playlistItem = null;
-                    var playlistItemId = (ApplicationSettingsHelper.ReadResetSettingsValue(Constants.CurrentPlaylistItemId));
-                    if (playlistItemId != null)
+                    //If we dont have anything, play from beginning of playlist.
+                    // HACK: Default playlist is an empty guid for now...
+                    if (CurrentPlaylistId == null)
                     {
-                        playlistItem = await LibraryManager.FetchPlaylistItem((Guid)playlistItemId);
+                        CurrentPlaylistId = Guid.Empty;
                     }
-                    if (playlistItem != null)
-                    {
-                        CurrentPlaylistItem = playlistItem;
-                        var currentPosition = ApplicationSettingsHelper.ReadResetSettingsValue(Constants.CurrentStartPosition);
-                        if (currentPosition == null)
-                        {
-                            // play from start if we dont have position
-                            StartPlaylistItemAt(CurrentPlaylistItem);
-                        }
-                        else
-                        {
-                            // play from exact position otherwise
-                            StartPlaylistItemAt(CurrentPlaylistItem, TimeSpan.Parse((string)currentPosition));
-                        }
-                    }
-                    else
-                    {
-                        //If we dont have anything, play from beginning of playlist.
-                        //Playlist.PlayAllTracks(); //start playback
-                        var items = await LibraryManager.FetchPlaylistItems(Guid.Empty);
-                        var firstItem = items.FirstOrDefault();
-                        CurrentPlaylistItem = firstItem;
-                        StartPlaylistItemAt(CurrentPlaylistItem);
-                    }
+                    var items = LibraryManager.FetchPlaylistItems((Guid)CurrentPlaylistId);
+                    var firstItem = items.FirstOrDefault();
+                    CurrentPlaylistItem = firstItem;
+                    StartPlaylistItemAt(CurrentPlaylistItem);
                 }
                 else
                 {
@@ -279,32 +296,28 @@ namespace TunrBackgroundAudioTask
         }
 
         /// <summary>
-        /// Skip track and update UVC via SMTC
+        /// Skip to previous track in the current playlist
         /// </summary>
-        private async void SkipToPrevious()
+        private void SkipToPrevious()
         {
-            Smtc.PlaybackStatus = MediaPlaybackStatus.Changing;
-            var list = await LibraryManager.FetchPlaylistItems(CurrentPlaylistItem.PlaylistFK);
+            var list = LibraryManager.FetchPlaylistItems(CurrentPlaylistItem.PlaylistFK);
             var index = list.FindIndex(p => p.PlaylistItemId == CurrentPlaylistItem.PlaylistItemId);
             var newIndex = ((index - 1) % list.Count + list.Count) % list.Count;
             var nextSong = list[newIndex];
             CurrentPlaylistItem = nextSong;
             StartPlaylistItemAt(nextSong);
-            //Playlist.SkipToPrevious();
         }
 
         /// <summary>
-        /// Skip track and update UVC via SMTC
+        /// Skip to next track in the current playlist
         /// </summary>
-        private async void SkipToNext()
+        private void SkipToNext()
         {
-            Smtc.PlaybackStatus = MediaPlaybackStatus.Changing;
-            var list = await LibraryManager.FetchPlaylistItems(CurrentPlaylistItem.PlaylistFK);
+            var list = LibraryManager.FetchPlaylistItems(CurrentPlaylistItem.PlaylistFK);
             var index = list.FindIndex(p => p.PlaylistItemId == CurrentPlaylistItem.PlaylistItemId);
             if (list.Count <= 0 || index < 0)
             {
-                Smtc.PlaybackStatus = MediaPlaybackStatus.Stopped;
-                Smtc.DisplayUpdater.Update();
+                Stop();
             }
             else
             {
@@ -312,6 +325,17 @@ namespace TunrBackgroundAudioTask
                 CurrentPlaylistItem = nextSong;
                 StartPlaylistItemAt(nextSong);
             }
+        }
+
+        /// <summary>
+        /// Stops playback
+        /// TODO: Make it actually unload the track info and such... right now it's just pause
+        /// </summary>
+        private void Stop()
+        {
+            MediaPlayerInstance.Pause();
+            Smtc.PlaybackStatus = MediaPlaybackStatus.Stopped;
+            Smtc.DisplayUpdater.Update();
         }
 
         #endregion
@@ -358,14 +382,8 @@ namespace TunrBackgroundAudioTask
             sender.Volume = 1;
             sender.Play();
             Debug.WriteLine("New Track: " + CurrentSong.TagTitle);
-            UpdateUVCOnNewTrack();
-            //if (foregroundAppState == ForegroundAppStatus.Active)
-            //{
-                //Message channel that can be used to send messages to foreground
-                ValueSet message = new ValueSet();
-                message.Add(Constants.Trackchanged, CurrentPlaylistItem.PlaylistItemId.ToString());
-                BackgroundMediaPlayer.SendMessageToForeground(message);
-            //}
+
+            // TODO: Let the foreground app know that playback has started.
         }
         #endregion
 
@@ -382,7 +400,6 @@ namespace TunrBackgroundAudioTask
             }
         }
 
-
         /// <summary>
         /// Fires when a message is recieved from the foreground app
         /// </summary>
@@ -392,26 +409,17 @@ namespace TunrBackgroundAudioTask
         {
             foreach (string key in e.Data.Keys)
             {
-                switch (key.ToLower())
+                switch (key)
                 {
-                    case Constants.AppSuspended:
-                        Debug.WriteLine("App suspending"); // App is suspended, you can save your task state at this point
-                        foregroundAppState = ForegroundAppStatus.Suspended;
-                        ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentPlaylistItemId, CurrentPlaylistItem.PlaylistItemId);
-                        break;
-                    case Constants.AppResumed:
-                        Debug.WriteLine("App resuming"); // App is resumed, now subscribe to message channel
-                        foregroundAppState = ForegroundAppStatus.Active;
-                        break;
-                    case Constants.StartPlayback: //Foreground App process has signalled that it is ready for playback
+                    case GlobalConstants.KeyStartPlayback: //Foreground App process has signalled that it is ready for playback
                         Debug.WriteLine("Starting Playback");
                         StartPlayback();
                         break;
-                    case Constants.SkipNext: // User has chosen to skip track from app context.
+                    case GlobalConstants.KeySkipNextTrack: // User has chosen to skip track from app context.
                         Debug.WriteLine("Skipping to next");
                         SkipToNext();
                         break;
-                    case Constants.SkipPrevious: // User has chosen to skip track from app context.
+                    case GlobalConstants.KeySkipPreviousTrack: // User has chosen to skip track from app context.
                         Debug.WriteLine("Skipping to previous");
                         SkipToPrevious();
                         break;
@@ -422,33 +430,32 @@ namespace TunrBackgroundAudioTask
 
         #region Playlist Commands
 
-        private async void StartPlaylistItemAt(PlaylistItem playlistItem)
+        /// <summary>
+        /// Starts a given track
+        /// </summary>
+        private void StartPlaylistItemAt(PlaylistItem playlistItem)
         {
             StartPlaylistItemAt(playlistItem, TimeSpan.Zero);
         }
 
         /// <summary>
-        /// Starts a given track by finding its name and at desired position
+        /// Starts a given track and start position
         /// </summary>
-        private async void StartPlaylistItemAt(PlaylistItem playlistItem, TimeSpan position)
+        private void StartPlaylistItemAt(PlaylistItem playlistItem, TimeSpan position)
         {
-            var song = await LibraryManager.FetchPlaylistItemSong(playlistItem.PlaylistItemId);
-            CurrentSong = song;
-
-            MediaPlayerInstance.AutoPlay = false;
-
-            ApplicationSettingsHelper.SaveSettingsValue(Constants.CurrentPlaylistItemId, playlistItem.PlaylistItemId);
+            CurrentPlaylistItem = playlistItem;
+            CurrentPlaylistId = playlistItem.PlaylistFK;
+            var song = CurrentSong;
 
             // Set the start position, we set the position once the state changes to playing, 
             // it can be possible for a fraction of second, playback can start before we are 
             // able to seek to new start position
+            MediaPlayerInstance.AutoPlay = false;
             MediaPlayerInstance.Volume = 0;
             CurrentStartPosition = position;
-            Debug.WriteLine(TUNRURL + "/stream/" + song.SongId);
-            MediaPlayerInstance.SetUriSource(new Uri(TUNRURL + "/stream/" + song.SongId));
-            
+            Debug.WriteLine(GlobalConstants.ServiceBaseUrl + "/stream/" + song.SongId);
+            MediaPlayerInstance.SetUriSource(new Uri(GlobalConstants.ServiceBaseUrl + "/stream/" + song.SongId));
         }
-
         #endregion
 
     }

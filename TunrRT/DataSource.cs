@@ -191,7 +191,7 @@ namespace TunrRT
 
         public async void UpdatePlayingSong()
         {
-            object nowPlayingItem = ApplicationSettingsHelper.ReadSettingsValue(Constants.CurrentPlaylistItemId);
+            object nowPlayingItem = ApplicationSettingsHelper.ReadSettingsValue(GlobalConstants.CurrentPlaylistItemId);
             if (nowPlayingItem == null)
             {
                 PlayingSong = null;

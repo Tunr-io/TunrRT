@@ -183,7 +183,17 @@ namespace TunrLibrary
         /// </summary>
         /// <param name="guid">Guid of the playlist item</param>
         /// <returns></returns>
-        public static async Task<PlaylistItem> FetchPlaylistItem(Guid guid)
+        public static PlaylistItem FetchPlaylistItem(Guid guid)
+        {
+            return PlaylistItems.LoadByKey(guid);
+        }
+
+        /// <summary>
+        /// Fetches a playlist item by Id
+        /// </summary>
+        /// <param name="guid">Guid of the playlist item</param>
+        /// <returns></returns>
+        public static async Task<PlaylistItem> FetchPlaylistItemAsync(Guid guid)
         {
             return await PlaylistItems.LoadByKeyAsync(guid);
         }
@@ -193,7 +203,17 @@ namespace TunrLibrary
         /// </summary>
         /// <param name="guid">Guid of the playlist</param>
         /// <returns></returns>
-        public static async Task<List<PlaylistItem>> FetchPlaylistItems(Guid guid)
+        public static List<PlaylistItem> FetchPlaylistItems(Guid guid)
+        {
+            return PlaylistItems.IndexQueryByKey("PlaylistFK", guid).ToList();
+        }
+
+        /// <summary>
+        /// Fetches playlist items by playlist id
+        /// </summary>
+        /// <param name="guid">Guid of the playlist</param>
+        /// <returns></returns>
+        public static async Task<List<PlaylistItem>> FetchPlaylistItemsAsync(Guid guid)
         {
             return await PlaylistItems.IndexQueryByKey("PlaylistFK", guid).ToListAsync();
         }

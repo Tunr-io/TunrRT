@@ -88,7 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Lex.Db">
-      <HintPath>..\packages\Lex.Db.1.2.1.0\lib\wpa81\Lex.Db.dll</HintPath>
+      <HintPath>..\TunrRT\packages\Lex.Db.1.2.2.0\lib\wpa81\Lex.Db.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
