@@ -48,7 +48,9 @@ namespace TunrRT
         {
             this.InitializeComponent();
             this.Suspending += this.OnSuspending;
+            this.Resuming += this.OnResuming;
         }
+
 
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
@@ -148,9 +150,13 @@ namespace TunrRT
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
             var deferral = e.SuspendingOperation.GetDeferral();
-
-            // TODO: Save application state and stop any background activity
+            BackgroundAudioHandler.App_Suspending();
             deferral.Complete();
+        }
+
+        private void OnResuming(object sender, object e)
+        {
+            BackgroundAudioHandler.App_Resuming();
         }
     }
 }

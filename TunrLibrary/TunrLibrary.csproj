@@ -87,8 +87,9 @@
     <Compile Include="SongFilter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Lex.Db">
-      <HintPath>..\TunrRT\packages\Lex.Db.1.2.2.0\lib\wpa81\Lex.Db.dll</HintPath>
+    <Reference Include="Lex.Db, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\TunrRT\packages\Lex.Db.1.2.1.0\lib\wpa81\Lex.Db.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

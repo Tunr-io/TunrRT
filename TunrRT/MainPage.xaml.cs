@@ -34,9 +34,9 @@ namespace TunrRT
             }
             set
             {
-                
                 if (_PlaylistReorderMode == ListViewReorderMode.Disabled && value == ListViewReorderMode.Enabled)
                 {
+                    ListPlaylist.SelectionMode = ListViewSelectionMode.Single;
                     // Collapse all other app bar buttons (assume we are on playlist hubitem)
                     AppBarClearList.Visibility = Visibility.Collapsed;
                     _PlaylistReorderMode = value;
@@ -45,6 +45,7 @@ namespace TunrRT
                     
                 } else if (_PlaylistReorderMode == ListViewReorderMode.Enabled && value == ListViewReorderMode.Disabled)
                 {
+                    ListPlaylist.SelectionMode = ListViewSelectionMode.None;
                     // Collapse playlist edit controls
                     AppBarPlaylistRemove.Visibility = Visibility.Collapsed;
                     _PlaylistReorderMode = value;
@@ -109,6 +110,10 @@ namespace TunrRT
             if (PlaylistReorderMode == ListViewReorderMode.Enabled)
             {
                 ListViewReorderPressed = true;
+                ListPlaylist.SelectedItem = e.ClickedItem;
+            } else
+            {
+                (App.Current as App).BackgroundAudioHandler.PlayItem(e.ClickedItem as PlaylistItem);
             }
         }
 
@@ -160,6 +165,23 @@ namespace TunrRT
         private void AppBarClearList_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void PlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            (App.Current as App).BackgroundAudioHandler.Play();
+        }
+
+        private void AppBarPlaylistRemove_Click(object sender, RoutedEventArgs e)
+        {
+            if (PlaylistReorderMode == ListViewReorderMode.Enabled)
+            {
+                var toRemove = (ListPlaylist.SelectedItem as PlaylistItem);
+                if (toRemove != null)
+                {
+                    (DataContext as DataSource).PlaylistItems.Remove(toRemove);
+                }
+            }
         }
     }
 }

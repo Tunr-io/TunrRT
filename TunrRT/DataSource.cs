@@ -46,23 +46,6 @@ namespace TunrRT
         public ObservableCollection<PlaylistItem> PlaylistItems { get; set; }
 
         /// <summary>
-        /// Refers to the song that is currently being played.
-        /// </summary>
-        public Song PlayingSong
-        {
-            get
-            {
-                return _PlayingSong;
-            }
-            set
-            {
-                _PlayingSong = value;
-                OnPropertyChanged("PlayingSong");
-            }
-        }
-        private Song _PlayingSong;
-
-        /// <summary>
         /// Returns true if the background task is currently playing
         /// </summary>
         public bool IsPlaying {
@@ -157,14 +140,15 @@ namespace TunrRT
             PlaylistItems = new ObservableCollection<PlaylistItem>();
             (App.Current as App).BackgroundAudioHandler.PropertyChanged += BackgroundAudioHandler_PropertyChanged;
             (App.Current as App).BackgroundAudioHandler.TrackChanged += BackgroundAudioHandler_TrackChanged;
-            UpdatePlayingSong();
 
             // Load playlist items
-            var loadedPlaylist = LibraryManager.FetchPlaylistItems(Guid.Empty).Result;
+            var loadedPlaylist = LibraryManager.FetchPlaylistItems(Guid.Empty);
             foreach (var pitem in loadedPlaylist)
             {
                 PlaylistItems.Add(pitem);
             }
+
+            PlaylistItems.CollectionChanged += PlaylistItems_CollectionChanged;
 
             // Set auth if we've authenticated in the past...
             if (ApplicationData.Current.LocalSettings.Values.ContainsKey("Authentication"))
@@ -181,32 +165,53 @@ namespace TunrRT
             BrowseLists.Add(firstList);
         }
 
+        /// <summary>
+        /// Runs whenever the playlist viewmodel is changed in order to update the backing database
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PlaylistItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
+                foreach (var item in e.OldItems)
+                {
+                    LibraryManager.DeletePlaylistItem(((PlaylistItem)item).PlaylistItemId);
+                }
+            }
+        }
+
         private void BackgroundAudioHandler_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "PlayerState")
             {
-                OnPropertyChanged("IsPlaying");
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                {
+                    OnPropertyChanged("IsPlaying");
+                });
             }
         }
 
-        public async void UpdatePlayingSong()
-        {
-            object nowPlayingItem = ApplicationSettingsHelper.ReadSettingsValue(GlobalConstants.CurrentPlaylistItemId);
-            if (nowPlayingItem == null)
-            {
-                PlayingSong = null;
-                return;
-            }
-            var playlistItem = await LibraryManager.FetchPlaylistItem((Guid)nowPlayingItem);
-            PlayingSong = playlistItem.Song;
-        }
+        //public void UpdatePlayingSong()
+        //{
+        //    object nowPlayingItem = ApplicationSettingsHelper.ReadSettingsValue(GlobalConstants.KeyCurrentPlaylistItemId);
+        //    if (nowPlayingItem == null)
+        //    {
+        //        PlayingSong = null;
+        //        return;
+        //    }
+        //    var playlistItem = LibraryManager.FetchPlaylistItem((Guid)nowPlayingItem);
+        //    PlayingSong = playlistItem.Song;
+        //}
 
-        private async void BackgroundAudioHandler_TrackChanged(object sender, EventArgs e)
+        private void BackgroundAudioHandler_TrackChanged(object sender, EventArgs e)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-             {
-                 UpdatePlayingSong();
-             });
+            //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            // {
+            //     UpdatePlayingSong();
+            // });
         }
 
         private void LibraryManager_LibraryUpdate(object sender, EventArgs e)

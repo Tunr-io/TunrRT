@@ -69,7 +69,7 @@
                             ItemClick="ListPlaylist_ItemClick"
                             Tapped="ListPlaylist_Tapped"
                             Holding="ListPlaylist_Holding"
-                            ReorderMode="{Binding ElementName=Main, Path=PlaylistReorderMode}">
+                            ReorderMode="{Binding ElementName=Main, Path=PlaylistReorderMode, Mode=TwoWay}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="Padding" Value="0 8" />
@@ -90,8 +90,8 @@
             <HubSection Tag="2">
                 <DataTemplate>
                     <StackPanel Orientation="Vertical" Margin="0,24,0,0">
-                        <TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="{Binding PlayingSong.TagTitle}" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
-                        <TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="{Binding PlayingSong.TagFirstPerformer}" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
+                        <TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="Test" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
+                        <TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="Test" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
                         <Rectangle HorizontalAlignment="Left" Width="240" Height="240" Margin="0,8,0,8" Fill="#FF202020" />
                         <StackPanel Orientation="Horizontal">
                             <Button x:Name="PrevButton" Style="{StaticResource ButtonNowPlayingStyle}">
@@ -101,7 +101,7 @@
                             <Button x:Name="PauseButton" Style="{StaticResource ButtonNowPlayingStyle}" Visibility="{Binding IsPlaying, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <TextBlock Text="Paused" />
                             </Button>
-                            <Button x:Name="PlayButton" Style="{StaticResource ButtonNowPlayingStyle}" Visibility="{Binding IsPlaying, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                            <Button x:Name="PlayButton" Style="{StaticResource ButtonNowPlayingStyle}" Visibility="{Binding IsPlaying, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Click="PlayButton_Click">
                                 <Path Data="F1 M 91.68,53.28 L 14.88,91.68 14.88,14.88 z"  Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
                             </Button>
                             <Button x:Name="NextButton" Style="{StaticResource ButtonNowPlayingStyle}">
@@ -123,7 +123,7 @@
                 <AppBarButton Name="AppBarRepeat" Label="repeat" Icon="RepeatAll"></AppBarButton>
                 <AppBarButton Name="AppBarShuffle" Label="shuffle" Icon="Shuffle"></AppBarButton>
                 <!-- Playlist edit mode commands -->
-                <AppBarButton Name="AppBarPlaylistRemove" Label="remove" Icon="Remove" Visibility="Collapsed"></AppBarButton>
+                <AppBarButton Name="AppBarPlaylistRemove" Label="remove" Icon="Remove" Visibility="Collapsed" Click="AppBarPlaylistRemove_Click"></AppBarButton>
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
                 <AppBarButton Name="AppBarLogout" Label="log out"></AppBarButton>

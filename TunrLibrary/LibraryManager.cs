@@ -90,6 +90,7 @@ namespace TunrLibrary
 		/// <returns></returns>
 		public static async Task AddOrUpdateSongs(ICollection<Song> songs)
         {
+            var test = songs.Where(s => s.TagAlbum == null || s.TagFirstPerformer == null || s.TagTitle == null || s.TagYear == null);
             await Songs.SaveAsync(songs);
             foreach (var song in songs)
             {
@@ -166,6 +167,15 @@ namespace TunrLibrary
         public static async Task ClearPlaylist(Guid playlistId)
         {
             await PlaylistItems.DeleteAsync(PlaylistItems.IndexQueryByKey("PlaylistFK", playlistId).ToList());
+        }
+
+        /// <summary>
+        /// Removes a playlist item by ID.
+        /// </summary>
+        /// <param name="playlistItemId"></param>
+        public static void DeletePlaylistItem(Guid playlistItemId)
+        {
+            PlaylistItems.DeleteByKey(playlistItemId);
         }
 
         /// <summary>

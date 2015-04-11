@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TunrLibrary.Models;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Media.Playback;
@@ -18,10 +19,7 @@ namespace TunrRT
     public class BackgroundAudioHandler : INotifyPropertyChanged
     {
         private AutoResetEvent BackgroundTaskInitialized = new AutoResetEvent(false);
-        private bool _BackgroundTaskRunning = false;
-
-        public event EventHandler TrackChanged;
-
+        
         public MediaPlayerState PlayerState {
             get
             {
@@ -32,7 +30,7 @@ namespace TunrRT
                 return BackgroundMediaPlayer.Current.CurrentState;
             }
         }
-
+        
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -43,17 +41,12 @@ namespace TunrRT
             }
         }
 
+        public event EventHandler TrackChanged;
         protected void OnTrackChanged()
         {
-            // Make a temporary copy of the event to avoid possibility of 
-            // a race condition if the last subscriber unsubscribes 
-            // immediately after the null check and before the event is raised.
             EventHandler handler = TrackChanged;
-
-            // Event will be null if there are no subscribers 
             if (handler != null)
             {
-                // Use the () operator to raise the event.
                 handler(this, null);
             }
         }
@@ -65,29 +58,54 @@ namespace TunrRT
         {
             get
             {
-                if (_BackgroundTaskRunning)
-                    return true;
+                if (!backgroundTaskRunning)
+                {
+                    object value = ApplicationSettingsHelper.ReadSettingsValue(GlobalConstants.KeyBackgroundTaskState);
+                    if (value == null)
+                    {
+                        backgroundTaskRunning = false;
+                    } else
+                    {
+                        backgroundTaskRunning = ((string)value).Equals(GlobalConstants.BackgroundTaskStateRunning);
+                    }
+                }
 
-                object value = ApplicationSettingsHelper.ReadResetSettingsValue(GlobalConstants.BackgroundTaskState);
-                if (value == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    _BackgroundTaskRunning = ((String)value).Equals(GlobalConstants.BackgroundTaskRunning);
-                    return _BackgroundTaskRunning;
-                }
+                return backgroundTaskRunning;
             }
         }
+        private bool backgroundTaskRunning;
 
         public BackgroundAudioHandler()
         {
-
+            StartBackgroundAudioTask();
         }
 
         /// <summary>
-        /// Unsubscribes to MediaPlayer events. Should run only on suspend
+        /// Run on resuming of app to re-bind event handlers to background task
+        /// </summary>
+        public void App_Resuming()
+        {
+            if (!BackgroundTaskRunning)
+            {
+                StartBackgroundAudioTask();
+            }
+            else
+            {
+                AddMediaPlayerEventHandlers();
+            }
+        }
+
+        /// <summary>
+        /// Called on app suspension to un-bind event handlers
+        /// </summary>
+        public void App_Suspending()
+        {
+            RemoveMediaPlayerEventHandlers();
+        }
+
+
+        /// <summary>
+        /// Unsubscribes to MediaPlayer events, should run only on suspend
         /// </summary>
         private void RemoveMediaPlayerEventHandlers()
         {
@@ -110,10 +128,10 @@ namespace TunrRT
             {
                 switch (key)
                 {
-                    case GlobalConstants.Trackchanged:
+                    case GlobalConstants.KeyTrackChanged:
                         OnTrackChanged();
                         break;
-                    case GlobalConstants.BackgroundTaskStarted:
+                    case GlobalConstants.KeyBackgroundTaskStarted:
                         //Wait for Background Task to be initialized before starting playback
                         Debug.WriteLine("Background Task started");
                         BackgroundTaskInitialized.Set();
@@ -139,22 +157,20 @@ namespace TunrRT
         }
 
         /// <summary>
-        /// Initialize Background Media Player Handlers and starts playback
+        /// Makes sure background task is running and binds background media player handlers
         /// </summary>
         private void StartBackgroundAudioTask()
         {
+            var state = BackgroundMediaPlayer.Current.CurrentState; // HACK: get the state to jump-start the bg task...
+            if (BackgroundTaskRunning)
+            {
+                return;
+            }
             AddMediaPlayerEventHandlers();
             var initResult = ThreadPool.RunAsync((source) =>
             {
                 bool result = BackgroundTaskInitialized.WaitOne(2000);
-                //Send message to initiate playback
-                if (result == true)
-                {
-                    var message = new ValueSet();
-                    message.Add(GlobalConstants.StartPlayback, "0");
-                    BackgroundMediaPlayer.SendMessageToBackground(message);
-                }
-                else
+                if (result != true)
                 {
                     throw new Exception("Background Audio Task didn't start in expected time");
                 }
@@ -170,7 +186,7 @@ namespace TunrRT
             }
             else if (status == AsyncStatus.Error)
             {
-                Debug.WriteLine("Background Audio Task could not initialized due to an error ::" + action.ErrorCode.ToString());
+                Debug.WriteLine("Background Audio Task could not initialized due to an error :" + action.ErrorCode.ToString());
             }
         }
 
@@ -178,18 +194,45 @@ namespace TunrRT
         public void Play()
         {
             Debug.WriteLine("Play button pressed from App");
+            StartBackgroundAudioTask();
             if (BackgroundTaskRunning)
             {
-                switch (BackgroundMediaPlayer.Current.CurrentState)
-                {
-                    case MediaPlayerState.Closed:
-                        StartBackgroundAudioTask();
-                        break;
-                    case MediaPlayerState.Stopped:
-                    case MediaPlayerState.Paused:
-                        BackgroundMediaPlayer.Current.Play();
-                        break;
-                }
+                BackgroundMediaPlayer.SendMessageToBackground(new ValueSet() { { GlobalConstants.KeyStartPlayback, "" } });
+                //BackgroundMediaPlayer.Current.Play();
+                //switch (BackgroundMediaPlayer.Current.CurrentState)
+                //{
+                //    case MediaPlayerState.Closed:
+                //        StartBackgroundAudioTask();
+                //        break;
+                //    case MediaPlayerState.Stopped:
+                //    case MediaPlayerState.Paused:
+                //        BackgroundMediaPlayer.Current.Play();
+                //        break;
+                //}
+            }
+            else
+            {
+                StartBackgroundAudioTask();
+            }
+        }
+
+        public void PlayItem(PlaylistItem item)
+        {
+            StartBackgroundAudioTask();
+            if (BackgroundTaskRunning)
+            {
+                BackgroundMediaPlayer.SendMessageToBackground(new ValueSet() { { GlobalConstants.KeyPlayItem, item.PlaylistItemId } });
+                //BackgroundMediaPlayer.Current.Play();
+                //switch (BackgroundMediaPlayer.Current.CurrentState)
+                //{
+                //    case MediaPlayerState.Closed:
+                //        StartBackgroundAudioTask();
+                //        break;
+                //    case MediaPlayerState.Stopped:
+                //    case MediaPlayerState.Paused:
+                //        BackgroundMediaPlayer.Current.Play();
+                //        break;
+                //}
             }
             else
             {

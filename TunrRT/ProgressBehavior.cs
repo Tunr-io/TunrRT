@@ -54,15 +54,18 @@ namespace TunrRT
 
         private static void OnIsVisibleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             bool isvisible = (bool)e.NewValue;
             if (isvisible)
             {
                 StatusBar.GetForCurrentView().ProgressIndicator.ShowAsync();
+
             }
             else
             {
                 StatusBar.GetForCurrentView().ProgressIndicator.HideAsync();
             }
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
 
         public double? Value

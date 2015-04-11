@@ -21,7 +21,7 @@ namespace TunrBackgroundAudioTask
     /// </summary>
     public sealed class TunrBackgroundAudioTask : IBackgroundTask
     {
-
+        
         #region Private fields, properties
         private SystemMediaTransportControls Smtc;
         private BackgroundTaskDeferral deferral; // Used to keep task alive
@@ -152,6 +152,7 @@ namespace TunrBackgroundAudioTask
             BackgroundTaskStarted.Set();
             IsBackgroundTaskRunning = true;
             ApplicationSettingsHelper.SaveSettingsValue(GlobalConstants.KeyBackgroundTaskState, GlobalConstants.BackgroundTaskStateRunning);
+            BackgroundMediaPlayer.SendMessageToForeground(new ValueSet() { { "KeyBackgroundTaskStarted", "" } });
 
             deferral = taskInstance.GetDeferral();
         }
@@ -286,7 +287,14 @@ namespace TunrBackgroundAudioTask
                 }
                 else
                 {
-                    BackgroundMediaPlayer.Current.Play();
+                    if (MediaPlayerInstance.CurrentState == MediaPlayerState.Closed)
+                    {
+                        StartPlaylistItemAt(CurrentPlaylistItem);
+                    }
+                    else
+                    {
+                        BackgroundMediaPlayer.Current.Play();
+                    }
                 }
             }
             catch (Exception ex)
@@ -304,7 +312,6 @@ namespace TunrBackgroundAudioTask
             var index = list.FindIndex(p => p.PlaylistItemId == CurrentPlaylistItem.PlaylistItemId);
             var newIndex = ((index - 1) % list.Count + list.Count) % list.Count;
             var nextSong = list[newIndex];
-            CurrentPlaylistItem = nextSong;
             StartPlaylistItemAt(nextSong);
         }
 
@@ -322,7 +329,6 @@ namespace TunrBackgroundAudioTask
             else
             {
                 var nextSong = list[(index + 1) % list.Count];
-                CurrentPlaylistItem = nextSong;
                 StartPlaylistItemAt(nextSong);
             }
         }
@@ -379,6 +385,8 @@ namespace TunrBackgroundAudioTask
         void MediaPlayerInstance_MediaOpened(MediaPlayer sender, object args)
         {
             // wait for media to be ready
+            Smtc.IsNextEnabled = true;
+            Smtc.IsPreviousEnabled = true;
             sender.Volume = 1;
             sender.Play();
             Debug.WriteLine("New Track: " + CurrentSong.TagTitle);
@@ -414,6 +422,10 @@ namespace TunrBackgroundAudioTask
                     case GlobalConstants.KeyStartPlayback: //Foreground App process has signalled that it is ready for playback
                         Debug.WriteLine("Starting Playback");
                         StartPlayback();
+                        break;
+                    case GlobalConstants.KeyPlayItem: // Foreground app has requested playback of a certain item
+                        Debug.WriteLine("Starting Playback of playlist item");
+                        StartPlaylistItemAt(LibraryManager.FetchPlaylistItem((Guid)(e.Data[key])));
                         break;
                     case GlobalConstants.KeySkipNextTrack: // User has chosen to skip track from app context.
                         Debug.WriteLine("Skipping to next");
@@ -452,6 +464,8 @@ namespace TunrBackgroundAudioTask
             // able to seek to new start position
             MediaPlayerInstance.AutoPlay = false;
             MediaPlayerInstance.Volume = 0;
+            Smtc.IsNextEnabled = false;
+            Smtc.IsPreviousEnabled = false;
             CurrentStartPosition = position;
             Debug.WriteLine(GlobalConstants.ServiceBaseUrl + "/stream/" + song.SongId);
             MediaPlayerInstance.SetUriSource(new Uri(GlobalConstants.ServiceBaseUrl + "/stream/" + song.SongId));

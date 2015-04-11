@@ -17,10 +17,11 @@ namespace TunrRT
         public const string KeyCurrentPlaylistItemId = "CurrentPlaylistItemId";
         public const string KeyCurrentStartPosition = "CurrentStartPosition";
         public const string KeyBackgroundTaskState = "BackgroundTaskState";
-
+        public const string KeyBackgroundTaskStarted = "BackgroundTaskStarted";
         public const string KeyTrackChanged = "TrackChanged";
 
         public const string KeyStartPlayback = "StartPlayback";
+        public const string KeyPlayItem = "PlayItem";
         public const string KeySkipNextTrack = "SkipNextTrack";
         public const string KeySkipPreviousTrack = "SkipPreviousTrack";
 
