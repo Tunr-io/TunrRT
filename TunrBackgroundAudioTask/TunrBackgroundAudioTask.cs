@@ -12,6 +12,7 @@ using Windows.ApplicationModel.Background;
 using Windows.Foundation.Collections;
 using Windows.Media;
 using Windows.Media.Playback;
+using Windows.System;
 
 namespace TunrBackgroundAudioTask
 {
@@ -127,6 +128,7 @@ namespace TunrBackgroundAudioTask
         public void Run(IBackgroundTaskInstance taskInstance)
         {
             Debug.WriteLine("Background Audio Task " + taskInstance.Task.Name + " starting...");
+            Debug.WriteLine("Memory usage: " + (MemoryManager.AppMemoryUsage / 1024 / 1024) + "/" + (MemoryManager.AppMemoryUsageLimit / 1024 / 1024));
 
             // Initialize SMTC object to talk with UVC.
             Smtc = SystemMediaTransportControls.GetForCurrentView();
@@ -360,6 +362,7 @@ namespace TunrBackgroundAudioTask
         /// </summary>
         void MediaPlayerInstance_CurrentStateChanged(MediaPlayer sender, object args)
         {
+            System.Diagnostics.Debug.WriteLine("State changed:" + sender.CurrentState);
             if (sender.CurrentState == MediaPlayerState.Playing && CurrentStartPosition != TimeSpan.FromSeconds(0))
             {
                 // if the start position is other than 0, then set it now
@@ -375,6 +378,7 @@ namespace TunrBackgroundAudioTask
         /// </summary>
         void MediaPlayerInstance_MediaEnded(MediaPlayer sender, object args)
         {
+            System.Diagnostics.Debug.WriteLine("Media ended.");
             // Skip to next...
             SkipToNext();
         }
@@ -384,6 +388,7 @@ namespace TunrBackgroundAudioTask
         /// </summary>
         void MediaPlayerInstance_MediaOpened(MediaPlayer sender, object args)
         {
+            System.Diagnostics.Debug.WriteLine("media opened.");
             // wait for media to be ready
             Smtc.IsNextEnabled = true;
             Smtc.IsPreviousEnabled = true;

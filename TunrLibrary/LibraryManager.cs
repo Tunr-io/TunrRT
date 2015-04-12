@@ -73,7 +73,13 @@ namespace TunrLibrary
                 .Automap(p => p.PlaylistItemId)
                 .WithIndex("PlaylistFK", p => p.PlaylistFK);
             LexDb.Initialize();
+        }
 
+        /// <summary>
+        /// Called to populate the in-memory cache of library data.
+        /// </summary>
+        public static void PreloadSongs()
+        {
             // Populate the in-memory library cache
             var songs = Songs.LoadAll();
             foreach (var song in songs)

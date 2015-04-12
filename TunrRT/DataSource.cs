@@ -156,6 +156,7 @@ namespace TunrRT
                 AuthToken = JsonConvert.DeserializeObject<AuthenticationToken>((string)ApplicationData.Current.LocalSettings.Values["Authentication"]);
             }
 
+            LibraryManager.PreloadSongs();
             // Bind an event to detect library updates
             LibraryManager.LibraryUpdate += LibraryManager_LibraryUpdate;
 
