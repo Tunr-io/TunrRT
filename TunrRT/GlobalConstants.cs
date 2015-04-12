@@ -21,6 +21,7 @@ namespace TunrRT
         public const string KeyTrackChanged = "TrackChanged";
 
         public const string KeyStartPlayback = "StartPlayback";
+        public const string KeyPausePlayback = "PausePlayback";
         public const string KeyPlayItem = "PlayItem";
         public const string KeySkipNextTrack = "SkipNextTrack";
         public const string KeySkipPreviousTrack = "SkipPreviousTrack";

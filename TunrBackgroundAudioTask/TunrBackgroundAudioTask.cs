@@ -428,6 +428,17 @@ namespace TunrBackgroundAudioTask
                         Debug.WriteLine("Starting Playback");
                         StartPlayback();
                         break;
+                    case GlobalConstants.KeyPausePlayback:
+                        Debug.WriteLine("Pausing Playback");
+                        try
+                        {
+                            BackgroundMediaPlayer.Current.Pause();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.ToString());
+                        }
+                        break;
                     case GlobalConstants.KeyPlayItem: // Foreground app has requested playback of a certain item
                         Debug.WriteLine("Starting Playback of playlist item");
                         StartPlaylistItemAt(LibraryManager.FetchPlaylistItem((Guid)(e.Data[key])));
@@ -469,8 +480,6 @@ namespace TunrBackgroundAudioTask
             // able to seek to new start position
             MediaPlayerInstance.AutoPlay = false;
             MediaPlayerInstance.Volume = 0;
-            Smtc.IsNextEnabled = false;
-            Smtc.IsPreviousEnabled = false;
             CurrentStartPosition = position;
             Debug.WriteLine(GlobalConstants.ServiceBaseUrl + "/stream/" + song.SongId);
             MediaPlayerInstance.SetUriSource(new Uri(GlobalConstants.ServiceBaseUrl + "/stream/" + song.SongId));

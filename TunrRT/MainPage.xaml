@@ -22,6 +22,7 @@
                 <converters:InverseBooleanConverter />
                 <converters:BooleanToVisibilityConverter />
             </converters:ValueConverterGroup>
+            <converters:ToUppercaseConverter x:Key="ToUppercaseConverter" />
         </ResourceDictionary>
     </Page.Resources>
 
@@ -90,21 +91,21 @@
             <HubSection Tag="2">
                 <DataTemplate>
                     <StackPanel Orientation="Vertical" Margin="0,24,0,0">
-                        <TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="Test" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
-                        <TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="Test" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
+                        <TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="{Binding PlayingSong.TagTitle, Converter={StaticResource ToUppercaseConverter}}" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
+                        <TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="{Binding PlayingSong.TagFirstPerformer, Converter={StaticResource ToUppercaseConverter}}" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
                         <Rectangle HorizontalAlignment="Left" Width="240" Height="240" Margin="0,8,0,8" Fill="#FF202020" />
                         <StackPanel Orientation="Horizontal">
-                            <Button x:Name="PrevButton" Style="{StaticResource ButtonNowPlayingStyle}">
+                            <Button x:Name="PrevButton" Style="{StaticResource ButtonNowPlayingStyle}" Click="PrevButton_Click">
                                 <Path Data="F1 M 0,0 L 0,76.8 -48,38.4 z
 									M -48,38.4 L -48,76.8 -76.8,76.8 -76.8,0 -48,0 z" Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
                             </Button>
-                            <Button x:Name="PauseButton" Style="{StaticResource ButtonNowPlayingStyle}" Visibility="{Binding IsPlaying, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <TextBlock Text="Paused" />
+                            <Button x:Name="PauseButton" Style="{StaticResource ButtonNowPlayingStyle}" Visibility="{Binding IsPlaying, Converter={StaticResource BooleanToVisibilityConverter}}" Click="PauseButton_Click">
+                                <Path Fill="#ffffffff" Height="22" Width="22" Stretch="Fill" UseLayoutRounding="False" Data="F1 M 0,0 L 0,23.36 8.48,23.36 8.48,0 z M 14.88,0 L 14.88,23.36 23.36,23.36 23.36,0 z"  />
                             </Button>
                             <Button x:Name="PlayButton" Style="{StaticResource ButtonNowPlayingStyle}" Visibility="{Binding IsPlaying, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Click="PlayButton_Click">
                                 <Path Data="F1 M 91.68,53.28 L 14.88,91.68 14.88,14.88 z"  Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
                             </Button>
-                            <Button x:Name="NextButton" Style="{StaticResource ButtonNowPlayingStyle}">
+                            <Button x:Name="NextButton" Style="{StaticResource ButtonNowPlayingStyle}" Click="NextButton_Click">
                                 <Path Data="F1 M 0,0 L 0,76.8 48,38.4 z
 		M 48,38.4 L 48,76.8 76.8,76.8 76.8,0 48,0 z" Fill="#ffffffff" Height="22" Stretch="Fill" UseLayoutRounding="False" Width="22" />
                             </Button>

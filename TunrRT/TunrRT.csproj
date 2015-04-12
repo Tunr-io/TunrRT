@@ -95,6 +95,7 @@
     </Compile>
     <Compile Include="ApplicationSettingsHelper.cs" />
     <Compile Include="BackgroundAudioHandler.cs" />
+    <Compile Include="Converters\ToUppercaseConverter.cs" />
     <Compile Include="GlobalConstants.cs" />
     <Compile Include="Controls\LibraryBrowser.xaml.cs">
       <DependentUpon>LibraryBrowser.xaml</DependentUpon>

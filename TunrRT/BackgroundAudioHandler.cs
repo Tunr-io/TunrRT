@@ -75,6 +75,8 @@ namespace TunrRT
         }
         private bool backgroundTaskRunning;
 
+        private bool BackgroundMediaHandlersSubscribed = false;
+
         public BackgroundAudioHandler()
         {
             StartBackgroundAudioTask();
@@ -85,6 +87,7 @@ namespace TunrRT
         /// </summary>
         public void App_Resuming()
         {
+            backgroundTaskRunning = false; // Assume it's not running and check.
             if (!BackgroundTaskRunning)
             {
                 StartBackgroundAudioTask();
@@ -109,8 +112,12 @@ namespace TunrRT
         /// </summary>
         private void RemoveMediaPlayerEventHandlers()
         {
-            BackgroundMediaPlayer.Current.CurrentStateChanged -= BackgroundMediaPlayer_CurrentStateChanged;
-            BackgroundMediaPlayer.MessageReceivedFromBackground -= BackgroundMediaPlayer_MessageReceivedFromBackground;
+            if (BackgroundMediaHandlersSubscribed)
+            {
+                BackgroundMediaPlayer.Current.CurrentStateChanged -= BackgroundMediaPlayer_CurrentStateChanged;
+                BackgroundMediaPlayer.MessageReceivedFromBackground -= BackgroundMediaPlayer_MessageReceivedFromBackground;
+                BackgroundMediaHandlersSubscribed = false;
+            }
         }
 
         /// <summary>
@@ -118,10 +125,19 @@ namespace TunrRT
         /// </summary>
         private void AddMediaPlayerEventHandlers()
         {
-            BackgroundMediaPlayer.Current.CurrentStateChanged += BackgroundMediaPlayer_CurrentStateChanged;
-            BackgroundMediaPlayer.MessageReceivedFromBackground += BackgroundMediaPlayer_MessageReceivedFromBackground;
+            if (!BackgroundMediaHandlersSubscribed)
+            {
+                BackgroundMediaPlayer.Current.CurrentStateChanged += BackgroundMediaPlayer_CurrentStateChanged;
+                BackgroundMediaPlayer.MessageReceivedFromBackground += BackgroundMediaPlayer_MessageReceivedFromBackground;
+                BackgroundMediaHandlersSubscribed = true;
+            }
         }
 
+        /// <summary>
+        /// Fired when a message is received from the background task
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BackgroundMediaPlayer_MessageReceivedFromBackground(object sender, MediaPlayerDataReceivedEventArgs e)
         {
             foreach (string key in e.Data.Keys)
@@ -140,6 +156,11 @@ namespace TunrRT
             }
         }
 
+        /// <summary>
+        /// Fired when the state of the media player has changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         private void BackgroundMediaPlayer_CurrentStateChanged(MediaPlayer sender, object args)
         {
             OnPropertyChanged("PlayerState");
@@ -161,12 +182,12 @@ namespace TunrRT
         /// </summary>
         private void StartBackgroundAudioTask()
         {
-            var state = BackgroundMediaPlayer.Current.CurrentState; // HACK: get the state to jump-start the bg task...
+            // Add media handlers
+            AddMediaPlayerEventHandlers();
             if (BackgroundTaskRunning)
             {
                 return;
             }
-            AddMediaPlayerEventHandlers();
             var initResult = ThreadPool.RunAsync((source) =>
             {
                 bool result = BackgroundTaskInitialized.WaitOne(2000);
@@ -191,59 +212,50 @@ namespace TunrRT
         }
 
         #region App-accessible commands
+        /// <summary>
+        /// Play whatever track is queued, or whatever comes first in the selected playlist
+        /// </summary>
         public void Play()
         {
             Debug.WriteLine("Play button pressed from App");
-            StartBackgroundAudioTask();
-            if (BackgroundTaskRunning)
-            {
-                BackgroundMediaPlayer.SendMessageToBackground(new ValueSet() { { GlobalConstants.KeyStartPlayback, "" } });
-                //BackgroundMediaPlayer.Current.Play();
-                //switch (BackgroundMediaPlayer.Current.CurrentState)
-                //{
-                //    case MediaPlayerState.Closed:
-                //        StartBackgroundAudioTask();
-                //        break;
-                //    case MediaPlayerState.Stopped:
-                //    case MediaPlayerState.Paused:
-                //        BackgroundMediaPlayer.Current.Play();
-                //        break;
-                //}
-            }
-            else
-            {
-                StartBackgroundAudioTask();
-            }
+            BackgroundMediaPlayer.SendMessageToBackground(new ValueSet() { { GlobalConstants.KeyStartPlayback, "" } });
         }
 
+        /// <summary>
+        /// Pause the currently playing track
+        /// </summary>
+        public void Pause()
+        {
+            Debug.WriteLine("Pause button pressed from App");
+            BackgroundMediaPlayer.SendMessageToBackground(new ValueSet() { { GlobalConstants.KeyPausePlayback, "" } });
+        }
+
+        /// <summary>
+        /// Skips to the next track in the playlist
+        /// </summary>
+        public void Next()
+        {
+            Debug.WriteLine("Next button pressed from App");
+            BackgroundMediaPlayer.SendMessageToBackground(new ValueSet() { { GlobalConstants.KeySkipNextTrack, "" } });
+        }
+
+        /// <summary>
+        /// Skips to the previous track in the playlist
+        /// </summary>
+        public void Previous()
+        {
+            Debug.WriteLine("Previous button pressed from App");
+            BackgroundMediaPlayer.SendMessageToBackground(new ValueSet() { { GlobalConstants.KeySkipPreviousTrack, "" } });
+        }
+
+        /// <summary>
+        /// Play a specific item (also switches to playlist of given item)
+        /// </summary>
+        /// <param name="item"></param>
         public void PlayItem(PlaylistItem item)
         {
-            StartBackgroundAudioTask();
-            if (BackgroundTaskRunning)
-            {
-                BackgroundMediaPlayer.SendMessageToBackground(new ValueSet() { { GlobalConstants.KeyPlayItem, item.PlaylistItemId } });
-                //BackgroundMediaPlayer.Current.Play();
-                //switch (BackgroundMediaPlayer.Current.CurrentState)
-                //{
-                //    case MediaPlayerState.Closed:
-                //        StartBackgroundAudioTask();
-                //        break;
-                //    case MediaPlayerState.Stopped:
-                //    case MediaPlayerState.Paused:
-                //        BackgroundMediaPlayer.Current.Play();
-                //        break;
-                //}
-            }
-            else
-            {
-                StartBackgroundAudioTask();
-            }
-        }
-
-        public void Stop()
-        {
-            Debug.WriteLine("Stopping...");
-            BackgroundMediaPlayer.Shutdown();
+            Debug.WriteLine("Play item pressed from App");
+            BackgroundMediaPlayer.SendMessageToBackground(new ValueSet() { { GlobalConstants.KeyPlayItem, item.PlaylistItemId } });
         }
         #endregion
     }

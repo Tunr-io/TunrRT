@@ -172,6 +172,21 @@ namespace TunrRT
             (App.Current as App).BackgroundAudioHandler.Play();
         }
 
+        private void PauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            (App.Current as App).BackgroundAudioHandler.Pause();
+        }
+
+        private void PrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            (App.Current as App).BackgroundAudioHandler.Previous();
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            (App.Current as App).BackgroundAudioHandler.Next();
+        }
+
         private void AppBarPlaylistRemove_Click(object sender, RoutedEventArgs e)
         {
             if (PlaylistReorderMode == ListViewReorderMode.Enabled)

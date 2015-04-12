@@ -56,6 +56,22 @@ namespace TunrRT
         }
 
         /// <summary>
+        /// Returns the song currently queued/playing in the background task
+        /// </summary>
+        public Song PlayingSong
+        {
+            get
+            {
+                var playlistItemId = (Guid?)(ApplicationSettingsHelper.ReadSettingsValue(GlobalConstants.KeyCurrentPlaylistItemId));
+                if (playlistItemId == null)
+                {
+                    return null;
+                }
+                return LibraryManager.FetchPlaylistItem((Guid)playlistItemId).Song;
+            }
+        }
+
+        /// <summary>
         /// Is busy boolean. Bind indeterminate progress bar to this to determine
         /// if we're ever busy doing something.
         /// </summary>
@@ -156,6 +172,7 @@ namespace TunrRT
                 AuthToken = JsonConvert.DeserializeObject<AuthenticationToken>((string)ApplicationData.Current.LocalSettings.Values["Authentication"]);
             }
 
+            // Trigger a library cache preload
             LibraryManager.PreloadSongs();
             // Bind an event to detect library updates
             LibraryManager.LibraryUpdate += LibraryManager_LibraryUpdate;
@@ -184,35 +201,27 @@ namespace TunrRT
 
         private void BackgroundAudioHandler_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "PlayerState")
+            switch (e.PropertyName)
             {
+                case "PlayerState":
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                {
-                    OnPropertyChanged("IsPlaying");
-                });
+                    {
+                        OnPropertyChanged("IsPlaying");
+                    });
+                    break;
             }
         }
 
-        //public void UpdatePlayingSong()
-        //{
-        //    object nowPlayingItem = ApplicationSettingsHelper.ReadSettingsValue(GlobalConstants.KeyCurrentPlaylistItemId);
-        //    if (nowPlayingItem == null)
-        //    {
-        //        PlayingSong = null;
-        //        return;
-        //    }
-        //    var playlistItem = LibraryManager.FetchPlaylistItem((Guid)nowPlayingItem);
-        //    PlayingSong = playlistItem.Song;
-        //}
-
         private void BackgroundAudioHandler_TrackChanged(object sender, EventArgs e)
         {
-            //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            // {
-            //     UpdatePlayingSong();
-            // });
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            {
+                OnPropertyChanged("PlayingSong");
+            });
         }
 
         private void LibraryManager_LibraryUpdate(object sender, EventArgs e)
