@@ -7,13 +7,20 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sample="using:TunrRT.SampleData"
+    xmlns:converters="using:TunrRT.Converters"
     mc:Ignorable="d"
     d:DesignHeight="800"
     d:DesignWidth="480">
 
     <d:Page.DataContext>
-        <sample:SampleAlbumList />
+        <sample:SampleTrackList />
     </d:Page.DataContext>
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converters:ToDoubleDigitConverter x:Key="ToDoubleDigitConverter" />
+        </ResourceDictionary>
+    </UserControl.Resources>
     
     <ListView ItemsSource="{Binding Tracks}" SelectionMode="None" IsItemClickEnabled="True" ItemClick="ListView_ItemClick">
         <ListView.ItemContainerStyle>
@@ -24,8 +31,8 @@
         <ListView.ItemTemplate>
             <DataTemplate>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding TagTrack}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="18" FontWeight="Bold" TextWrapping="NoWrap" HorizontalAlignment="Left" />
-                    <TextBlock Text="{Binding TagTitle}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="22" FontWeight="Light" TextWrapping="NoWrap" HorizontalAlignment="Left" />
+                    <TextBlock Text="{Binding TagTrack, Converter={StaticResource ToDoubleDigitConverter}}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="24" FontWeight="Bold" TextWrapping="NoWrap" HorizontalAlignment="Left" Width="36" />
+                    <TextBlock Text="{Binding TagTitle}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="24" FontWeight="Light" TextWrapping="NoWrap" HorizontalAlignment="Left" />
                 </StackPanel>
             </DataTemplate>
         </ListView.ItemTemplate>

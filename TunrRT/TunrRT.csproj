@@ -95,6 +95,7 @@
     </Compile>
     <Compile Include="ApplicationSettingsHelper.cs" />
     <Compile Include="BackgroundAudioHandler.cs" />
+    <Compile Include="Converters\ToDoubleDigitConverter.cs" />
     <Compile Include="Converters\ToUppercaseConverter.cs" />
     <Compile Include="GlobalConstants.cs" />
     <Compile Include="Controls\LibraryBrowser.xaml.cs">
@@ -129,6 +130,7 @@
     <Compile Include="Models\LibraryLists\ArtistList.cs" />
     <Compile Include="ProgressBehavior.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SampleData\SampleTrackList.cs" />
     <Compile Include="SampleData\SampleAlbumList.cs" />
     <Compile Include="SampleData\SampleArtistList.cs" />
     <Compile Include="SampleData\SampleDataSource.cs" />

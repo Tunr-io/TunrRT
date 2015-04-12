@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using TunrLibrary.Models;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Phone.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -92,6 +93,20 @@ namespace TunrRT
 #pragma warning disable CS4014
             (DataContext as DataSource).Synchronize();
 #pragma warning restore CS4014
+
+            HardwareButtons.BackPressed += HardwareButtons_BackPressed;
+        }
+
+        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
+        {
+            if ((string)Hub.SectionsInView[0].Tag == "0")
+            {
+                if ((DataContext as DataSource).BrowseLists.Count > 1)
+                {
+                    (DataContext as DataSource).GoBackTo((DataContext as DataSource).BrowseLists[(DataContext as DataSource).BrowseLists.Count-2]);
+                    e.Handled = true;
+                }
+            }
         }
 
         private void ListPlaylist_Loaded(object sender, RoutedEventArgs e)
