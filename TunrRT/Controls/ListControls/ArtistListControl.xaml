@@ -15,10 +15,11 @@
         <sample:SampleArtistList />
     </d:Page.DataContext>
 
-    <ListView ItemsSource="{Binding Artists}" IsItemClickEnabled="True" ItemClick="ListView_ItemClick">
+    <ListView HorizontalAlignment="Stretch" ItemsSource="{Binding Artists}" IsItemClickEnabled="True" ItemClick="ListView_ItemClick">
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
                 <Setter Property="Padding" Value="0 8" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             </Style>
         </ListView.ItemContainerStyle>
         <ListView.ItemTemplate>

@@ -41,6 +41,31 @@ namespace TunrRT
         public ObservableCollection<LibraryList> BrowseLists { get; set; }
 
         /// <summary>
+        /// Returns the 'history' of browse lists - items in the back-stack
+        /// </summary>
+        public List<LibraryList> LibraryListBackStack
+        {
+            get
+            {
+                if (BrowseLists.Count > 1)
+                {
+                    return BrowseLists.Take(BrowseLists.Count - 1).ToList();
+                }
+                return new List<LibraryList>();
+            }
+        }
+
+        /// <summary>
+        /// Returns the last browse list - the currently viewed list
+        /// </summary>
+        public LibraryList CurrentLibraryList {
+            get
+            {
+                return BrowseLists.LastOrDefault();
+            }
+        }
+
+        /// <summary>
         /// Current playlist to be displayed to the user
         /// </summary>
         public ObservableCollection<PlaylistItem> PlaylistItems { get; set; }
@@ -48,7 +73,8 @@ namespace TunrRT
         /// <summary>
         /// Returns true if the background task is currently playing
         /// </summary>
-        public bool IsPlaying {
+        public bool IsPlaying
+        {
             get
             {
                 return (App.Current as App).BackgroundAudioHandler.PlayerState == Windows.Media.Playback.MediaPlayerState.Playing;
@@ -176,12 +202,25 @@ namespace TunrRT
             LibraryManager.PreloadSongs();
             // Bind an event to detect library updates
             LibraryManager.LibraryUpdate += LibraryManager_LibraryUpdate;
+            
+            // Trigger event when BrowseLists is updated
+            BrowseLists.CollectionChanged += BrowseLists_CollectionChanged;
 
             var firstProperty = LibraryFilterTreeProperties.FirstOrDefault();
             var firstType = FilterListTypes[firstProperty.Name];
             var firstList = (LibraryList)(Activator.CreateInstance(firstType, this, "Music", LibraryFilterTreeProperties.FirstOrDefault(), new List<SongFilter>()));
             BrowseLists.Add(firstList);
         }
+
+        /// <summary>
+        /// Triggers property updates when browselists are added/removed
+        /// </summary>
+        private void BrowseLists_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged("LibraryListBackStack");
+            OnPropertyChanged("CurrentLibraryList");
+        }
+
 
         /// <summary>
         /// Runs whenever the playlist viewmodel is changed in order to update the backing database

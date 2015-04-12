@@ -38,7 +38,7 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="HubSection">
-                                    <Grid Background="{TemplateBinding Background}" Margin="0">
+                                    <Grid Background="{TemplateBinding Background}" Margin="0 25 0 0">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
@@ -53,12 +53,12 @@
                     </Style>
                 </HubSection.Style>
                 <DataTemplate>
-                    <controls:LibraryBrowser DataContext="{Binding}" />
+                    <controls:LibraryBrowser HorizontalAlignment="Stretch" DataContext="{Binding}" />
                 </DataTemplate>
             </HubSection>
-            <HubSection Tag="1">
+            <HubSection Tag="1" Margin="0 25 0 0">
                 <HubSection.Header>
-                    <TextBlock Text="playlist" Foreground="White" FontFamily="Segoe WP" FontWeight="Light" FontSize="48" />
+                    <TextBlock Text="playlist" Foreground="White" FontFamily="Segoe WP" FontWeight="Light" FontSize="48" TextLineBounds="TrimToCapHeight" />
                 </HubSection.Header>
                 <DataTemplate>
                     <ListView x:Name="ListPlaylist" 
@@ -70,6 +70,7 @@
                             ItemClick="ListPlaylist_ItemClick"
                             Tapped="ListPlaylist_Tapped"
                             Holding="ListPlaylist_Holding"
+                            Margin="0 -12 0 0"
                             ReorderMode="{Binding ElementName=Main, Path=PlaylistReorderMode, Mode=TwoWay}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
@@ -80,8 +81,8 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical">
-                                    <TextBlock Text="{Binding Song.TagTitle}" Foreground="{StaticResource PhoneForegroundBrush}" FontSize="24" FontWeight="Bold" />
-                                    <TextBlock Text="{Binding Song.TagFirstPerformer}" Foreground="{ThemeResource PhoneMidBrush}" FontFamily="Global User Interface" FontSize="16" />
+                                    <TextBlock Text="{Binding Song.TagTitle}" Foreground="{StaticResource PhoneForegroundBrush}" FontFamily="Segoe WP" FontSize="24" FontWeight="Bold" />
+                                    <TextBlock Text="{Binding Song.TagFirstPerformer}" Foreground="{ThemeResource PhoneMidBrush}" FontFamily="Segoe WP" FontSize="16" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -90,9 +91,13 @@
             </HubSection>
             <HubSection Tag="2">
                 <DataTemplate>
-                    <StackPanel Orientation="Vertical" Margin="0,24,0,0">
-                        <TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="{Binding PlayingSong.TagTitle, Converter={StaticResource ToUppercaseConverter}}" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
-                        <TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="{Binding PlayingSong.TagFirstPerformer, Converter={StaticResource ToUppercaseConverter}}" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,2,0,2" />
+                    <StackPanel Orientation="Vertical" Margin="0,0,0,0">
+                        <Grid Height="114">
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                                <TextBlock FontFamily="Segoe WP" FontWeight="Black" FontSize="36" Text="{Binding PlayingSong.TagTitle, Converter={StaticResource ToUppercaseConverter}}" TextWrapping="Wrap" TextLineBounds="Tight" Margin="0,2,0,2" LineHeight="36" MaxHeight="76" LineStackingStrategy="BlockLineHeight" />
+                                <TextBlock FontFamily="Segoe WP" FontWeight="Light" FontSize="32" Text="{Binding PlayingSong.TagFirstPerformer, Converter={StaticResource ToUppercaseConverter}}" TextWrapping="NoWrap" TextLineBounds="Tight" Margin="0,4,0,2" Height="38" />
+                            </StackPanel>
+                        </Grid>
                         <Rectangle HorizontalAlignment="Left" Width="240" Height="240" Margin="0,8,0,8" Fill="#FF202020" />
                         <StackPanel Orientation="Horizontal">
                             <Button x:Name="PrevButton" Style="{StaticResource ButtonNowPlayingStyle}" Click="PrevButton_Click">

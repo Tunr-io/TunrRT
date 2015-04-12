@@ -39,20 +39,21 @@
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0 0 0 16">
-            <ListView x:Name="ListBackStack" ItemsSource="{Binding BrowseLists}" IsItemClickEnabled="True" ItemClick="ListBackStack_ItemClick">
+        <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0 0 0 0">
+            <ListView x:Name="ListBackStack" ItemsSource="{Binding LibraryListBackStack}" IsItemClickEnabled="True" ItemClick="ListBackStack_ItemClick">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Padding" Value="0" />
-                        <Setter Property="Margin" Value="0 2" />
+                        <Setter Property="Margin" Value="0 0" />
                     </Style>
                 </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Foreground="Black" Text="{Binding ListName, Converter={StaticResource ToLowercaseConverter}}" FontWeight="Light" FontSize="64" TextLineBounds="Tight" TextTrimming="Clip" />
+                        <TextBlock Foreground="#7F000000" Text="{Binding ListName, Converter={StaticResource ToLowercaseConverter}}" FontFamily="Segoe WP" FontWeight="Light" FontSize="32" TextLineBounds="Tight" TextTrimming="Clip" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+            <TextBlock Foreground="Black" Text="{Binding CurrentLibraryList.ListName, Converter={StaticResource ToLowercaseConverter}}" FontFamily="Segoe WP" FontWeight="Light" FontSize="64" TextLineBounds="TrimToCapHeight" TextTrimming="Clip" />
         </StackPanel>
         <ItemsControl x:Name="LibraryBrowseList" Grid.Row="1" ItemsSource="{Binding BrowseLists}">
             <ItemsControl.ItemsPanel>
@@ -62,7 +63,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <ContentControl Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Stretch" Content="{Binding}" ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" Loaded="ContentControl_Loaded">
+                    <ContentControl Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="{Binding}" ContentTemplateSelector="{StaticResource LibraryListTemplateSelector}" Loaded="ContentControl_Loaded">
                         <ContentControl.Projection>
                             <PlaneProjection GlobalOffsetZ="0" />
                         </ContentControl.Projection>
