@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="1f6f4a4e-0abc-4d02-8b63-b62b997cdd55" Publisher="CN=Hayden" Version="1.0.0.0" />
-  <mp:PhoneIdentity PhoneProductId="1f6f4a4e-0abc-4d02-8b63-b62b997cdd55" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Identity Name="TunrLLC.Tunr" Publisher="CN=D5CB3CAC-C5D0-4FF2-B054-6D238D79D881" Version="1.1.0.0" />
+  <mp:PhoneIdentity PhoneProductId="65685929-d5f4-4f65-8bdc-32c50f368504" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>TunrRT</DisplayName>
-    <PublisherDisplayName>Tunr LLC</PublisherDisplayName>
+    <DisplayName>Tunr</DisplayName>
+    <PublisherDisplayName>Tunr, LLC</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Prerequisites>
