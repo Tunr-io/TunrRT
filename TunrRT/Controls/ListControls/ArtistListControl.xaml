@@ -14,19 +14,77 @@
     <d:Page.DataContext>
         <sample:SampleArtistList />
     </d:Page.DataContext>
-
-    <ListView HorizontalAlignment="Stretch" ItemsSource="{Binding Artists}" IsItemClickEnabled="True" ItemClick="ListView_ItemClick">
-        <ListView.ItemContainerStyle>
-            <Style TargetType="ListViewItem">
-                <Setter Property="Padding" Value="0 8" />
-                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            </Style>
-        </ListView.ItemContainerStyle>
-        <ListView.ItemTemplate>
-            <DataTemplate>
-                <TextBlock Text="{Binding TagFirstPerformer}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="25" FontWeight="Normal" />
-            </DataTemplate>
-        </ListView.ItemTemplate>
-    </ListView>
-	
+    <!--ItemsSource="{Binding ArtistCollectionViewSource.View}"-->
+    <SemanticZoom>
+        <SemanticZoom.ZoomedOutView>
+            <GridView Background="#33FFFFFF" Padding="8,8,0,0" ItemsSource="{Binding ArtistCollectionViewSource.View.CollectionGroups}">
+                <GridView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="Black"
+							BorderBrush="Black"
+							BorderThickness="2.5"
+							Height="79"
+							Width="79"
+							HorizontalAlignment="Left"
+							Margin="0,0,9.5,9.5">
+                            <TextBlock Text="{Binding Group.Key}"
+							   Foreground="White"
+							   FontSize="38.667"
+							   FontWeight="SemiBold"
+							   TextLineBounds="Tight"
+							   OpticalMarginAlignment="TrimSideBearings"
+							   IsColorFontEnabled="False"
+							   IsTextScaleFactorEnabled="False"
+							   HorizontalAlignment="Left"
+							   VerticalAlignment="Bottom"
+							   Margin="7,0,0,7" />
+                        </Border>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+        </SemanticZoom.ZoomedOutView>
+        <SemanticZoom.ZoomedInView>
+            <ListView HorizontalAlignment="Stretch" ItemsSource="{Binding ArtistCollectionViewSource.View}" IsItemClickEnabled="True" ItemClick="ListView_ItemClick">
+                <ListView.GroupStyle>
+                    <GroupStyle HidesIfEmpty="True">
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <Border Background="Black"
+									        BorderBrush="Black"
+									        BorderThickness="2.5"
+									        Width="49.5"
+									        Height="49.5"
+									        HorizontalAlignment="Left"
+									        Margin="0,9.5,0,9.5">
+                                    <TextBlock Text="{Binding Key}"
+											        Foreground="White"
+											        FontSize="28"
+											        FontFamily="Segoe WP"
+											        FontWeight="SemiBold"
+											        TextLineBounds="Tight"
+											        OpticalMarginAlignment="TrimSideBearings"
+											        IsColorFontEnabled="False"
+											        IsTextScaleFactorEnabled="False"
+											        HorizontalAlignment="Left"
+											        VerticalAlignment="Bottom"
+											        Margin="5.5,0,0,7" />
+                                </Border>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListView.GroupStyle>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="0 8" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding TagFirstPerformer}" Foreground="{ThemeResource PhoneBackgroundBrush}" FontFamily="Segoe WP" FontSize="25" FontWeight="Normal" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </SemanticZoom.ZoomedInView>
+    </SemanticZoom>
 </UserControl>
