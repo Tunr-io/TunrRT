@@ -236,6 +236,12 @@ namespace TunrRT
                     LibraryManager.DeletePlaylistItem(((PlaylistItem)item).PlaylistItemId);
                 }
             }
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                LibraryManager.UpdatePlaylistItemsAsync(PlaylistItems.ToList());
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            }
         }
 
         private void BackgroundAudioHandler_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -302,22 +308,63 @@ namespace TunrRT
         {
             System.Diagnostics.Debug.WriteLine("Synchronizing with Tunr...");
             IsSynchronizing = true;
-            try
-            {
-                using (var client = new HttpClient())
+            var latestGuid = (Guid?)ApplicationSettingsHelper.ReadSettingsValue(GlobalConstants.KeyLatestSyncId);
+            // If we have no sync id, we have to obtain one
+            try { 
+                if (latestGuid == null)
                 {
-                    client.BaseAddress = new Uri(BASEURL);
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken.access_token);
-                    var response = await client.GetAsync("api/Library");
-                    var songs = await response.Content.ReadAsAsync<List<Song>>();
-                    System.Diagnostics.Debug.WriteLine("Fetched " + songs.Count + " songs.");
-                    await LibraryManager.AddOrUpdateSongs(songs);
-                    // TODO: Remove songs that have been deleted from Tunr
+                    using (var client = new HttpClient())
+                    {
+                        client.BaseAddress = new Uri(BASEURL);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken.access_token);
+                        var response = await client.GetAsync("api/Library/Sync");
+                        var syncResult = await response.Content.ReadAsAsync<SyncBase>();
+                        System.Diagnostics.Debug.WriteLine("Fetched " + syncResult.Library.Count + " songs.");
+                        await LibraryManager.AddOrUpdateSongs(syncResult.Library);
+                        System.Diagnostics.Debug.WriteLine("Updating to sync id " + syncResult.LastSyncId);
+                        ApplicationSettingsHelper.SaveSettingsValue(GlobalConstants.KeyLatestSyncId, syncResult.LastSyncId);
+                        // TODO: Remove songs that have been deleted from Tunr
+                    }
+                    System.Diagnostics.Debug.WriteLine("Synchronization complete.");
+                    IsSynchronizing = false;
+                } else
+                {
+                    using (var client = new HttpClient())
+                    {
+                        client.BaseAddress = new Uri(BASEURL);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken.access_token);
+                        var response = await client.GetAsync("api/Library/Sync/" + latestGuid);
+                        var changeSets = await response.Content.ReadAsAsync<List<ChangeSetDetails>>();
+                        var songsToAddUpdate = new List<Song>();
+                        System.Diagnostics.Debug.WriteLine("Fetched " + changeSets.Count + " change sets");
+                        if (changeSets.Count > 0)
+                        {
+                            foreach (var changeSet in changeSets)
+                            {
+                                System.Diagnostics.Debug.WriteLine("Processing changeset " + changeSet.ChangeSetId + "...");
+                                foreach (var change in changeSet.Changes)
+                                {
+                                    if (change.Key == ChangeSetDetails.ChangeType.Create || change.Key == ChangeSetDetails.ChangeType.Update)
+                                    {
+                                        songsToAddUpdate.Add(change.Value);
+                                    }
+
+                                    // TODO: Handle delete
+                                }
+                            }
+                            System.Diagnostics.Debug.WriteLine("Adding " + songsToAddUpdate.Count + " to library from changes...");
+                            await LibraryManager.AddOrUpdateSongs(songsToAddUpdate);
+                            System.Diagnostics.Debug.WriteLine("Updating to sync id " + changeSets.LastOrDefault().ChangeSetId);
+                            ApplicationSettingsHelper.SaveSettingsValue(GlobalConstants.KeyLatestSyncId, changeSets.LastOrDefault().ChangeSetId);
+                        }
+                    }
+                    System.Diagnostics.Debug.WriteLine("Synchronization complete.");
+                    IsSynchronizing = false;
                 }
-                System.Diagnostics.Debug.WriteLine("Synchronization complete.");
-                IsSynchronizing = false;
             }
             catch (Exception)
             {
@@ -338,7 +385,10 @@ namespace TunrRT
             {
                 var newPlaylistItem = await LibraryManager.AddSongToPlaylistAsync(target);
                 PlaylistItems.Add(newPlaylistItem);
-                ((App.Current) as App).BackgroundAudioHandler.Play();
+                if (PlaylistItems.Count == 1)
+                {
+                    ((App.Current) as App).BackgroundAudioHandler.Play();
+                }
                 return;
             }
             var propertyValue = targetProperty.GetValue(target, null);

@@ -124,15 +124,15 @@
     <Page.BottomAppBar>
         <CommandBar x:Name="CommandBar">
             <CommandBar.PrimaryCommands>
-                <AppBarButton Name="AppBarSearch" Label="search" Icon="Find"></AppBarButton>
-                <AppBarButton Name="AppBarClearList" Label="clear playlist" Icon="Delete"></AppBarButton>
-                <AppBarButton Name="AppBarRepeat" Label="repeat" Icon="RepeatAll"></AppBarButton>
-                <AppBarButton Name="AppBarShuffle" Label="shuffle" Icon="Shuffle"></AppBarButton>
+                <AppBarButton Name="AppBarSearch" Label="search" Icon="Find" Click="AppBarSearch_Click"></AppBarButton>
+                <AppBarButton Name="AppBarClearList" Label="clear playlist" Icon="Delete" Click="AppBarClearList_Click"></AppBarButton>
+                <AppBarButton Name="AppBarRepeat" Label="repeat" Icon="RepeatAll" Click="AppBarRepeat_Click"></AppBarButton>
+                <AppBarButton Name="AppBarShuffle" Label="shuffle" Icon="Shuffle" Click="AppBarShuffle_Click"></AppBarButton>
                 <!-- Playlist edit mode commands -->
                 <AppBarButton Name="AppBarPlaylistRemove" Label="remove" Icon="Remove" Visibility="Collapsed" Click="AppBarPlaylistRemove_Click"></AppBarButton>
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
-                <AppBarButton Name="AppBarLogout" Label="log out"></AppBarButton>
+                <AppBarButton Name="AppBarLogout" Label="log out" Click="AppBarLogout_Click"></AppBarButton>
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>

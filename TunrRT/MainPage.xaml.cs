@@ -9,6 +9,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Phone.UI.Input;
 using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -183,9 +184,18 @@ namespace TunrRT
             }
         }
 
-        private void AppBarClearList_Click(object sender, RoutedEventArgs e)
+        private async void AppBarClearList_Click(object sender, RoutedEventArgs e)
         {
+            MessageDialog md = new MessageDialog("This will clear your entire playlist, and cannot be undone.", "Are you sure?");
+            bool? result = null;
+            md.Commands.Add(new UICommand("Clear", new UICommandInvokedHandler((cmd) => result = true)));
+            md.Commands.Add(new UICommand("Cancel", new UICommandInvokedHandler((cmd) => result = false)));
 
+            await md.ShowAsync();
+            if (result == true)
+            {
+                (DataContext as DataSource).PlaylistItems.Clear();
+            }
         }
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
@@ -218,6 +228,30 @@ namespace TunrRT
                     (DataContext as DataSource).PlaylistItems.Remove(toRemove);
                 }
             }
+        }
+
+        private async void AppBarSearch_Click(object sender, RoutedEventArgs e)
+        {
+            var md = new MessageDialog("This feature will be coming soon. We'll let you know when it's working!", "Oops!");
+            await md.ShowAsync();
+        }
+
+        private async void AppBarRepeat_Click(object sender, RoutedEventArgs e)
+        {
+            var md = new MessageDialog("This feature will be coming soon. We'll let you know when it's working!", "Oops!");
+            await md.ShowAsync();
+        }
+
+        private async void AppBarShuffle_Click(object sender, RoutedEventArgs e)
+        {
+            var md = new MessageDialog("This feature will be coming soon. We'll let you know when it's working!", "Oops!");
+            await md.ShowAsync();
+        }
+
+        private async void AppBarLogout_Click(object sender, RoutedEventArgs e)
+        {
+            var md = new MessageDialog("This feature will be coming soon. We'll let you know when it's working! (In the meantime, you can re-install the app).", "Oops!");
+            await md.ShowAsync();
         }
     }
 }

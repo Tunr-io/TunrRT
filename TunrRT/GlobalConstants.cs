@@ -12,6 +12,10 @@ namespace TunrRT
         public const string ServiceBaseUrl = "https://play.tunr.io";
         #endregion
 
+        #region Foreground app constants
+        public const string KeyLatestSyncId = "LatestSyncId";
+        #endregion
+
         #region Background Task message keys
         public const string KeyCurrentPlaylistId = "CurrentPlaylistId";
         public const string KeyCurrentPlaylistItemId = "CurrentPlaylistItemId";

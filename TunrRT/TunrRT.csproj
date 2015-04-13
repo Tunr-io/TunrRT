@@ -125,10 +125,12 @@
     </Compile>
     <Compile Include="Misc\ObservableDictionary.cs" />
     <Compile Include="Models\AuthenticationToken.cs" />
+    <Compile Include="Models\ChangeSetDetails.cs" />
     <Compile Include="Models\LibraryList.cs" />
     <Compile Include="Models\LibraryLists\TrackList.cs" />
     <Compile Include="Models\LibraryLists\AlbumList.cs" />
     <Compile Include="Models\LibraryLists\ArtistList.cs" />
+    <Compile Include="Models\SyncBase.cs" />
     <Compile Include="ProgressBehavior.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SampleData\SampleTrackList.cs" />

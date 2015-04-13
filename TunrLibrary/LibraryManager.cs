@@ -166,6 +166,21 @@ namespace TunrLibrary
         }
 
         /// <summary>
+        /// Meant to update existing playlist items
+        /// </summary>
+        /// <param name="newList"></param>
+        /// <returns></returns>
+        public static async Task UpdatePlaylistItemsAsync(List<PlaylistItem> newList)
+        {
+            for (int i = 0; i < newList.Count; i++)
+            {
+                System.Diagnostics.Debug.WriteLine(i + ": " + newList[i].Song.TagTitle);
+                newList[i].Order = i;
+            }
+            await PlaylistItems.SaveAsync(newList);
+        }
+
+        /// <summary>
         /// Clears the specified playlist of any items
         /// </summary>
         /// <param name="playlistId">ID of playlist to clear of items</param>
@@ -221,7 +236,7 @@ namespace TunrLibrary
         /// <returns></returns>
         public static List<PlaylistItem> FetchPlaylistItems(Guid guid)
         {
-            return PlaylistItems.IndexQueryByKey("PlaylistFK", guid).ToList();
+            return PlaylistItems.IndexQueryByKey("PlaylistFK", guid).ToList().OrderBy(i => i.Order).ToList();
         }
 
         /// <summary>
@@ -231,7 +246,7 @@ namespace TunrLibrary
         /// <returns></returns>
         public static async Task<List<PlaylistItem>> FetchPlaylistItemsAsync(Guid guid)
         {
-            return await PlaylistItems.IndexQueryByKey("PlaylistFK", guid).ToListAsync();
+            return (await PlaylistItems.IndexQueryByKey("PlaylistFK", guid).ToListAsync()).OrderBy(i => i.Order).ToList();
         }
 
         /// <summary>

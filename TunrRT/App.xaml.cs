@@ -51,7 +51,6 @@ namespace TunrRT
             this.Resuming += this.OnResuming;
         }
 
-
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
         /// will be used when the application is launched to open a specific file, to display
@@ -157,6 +156,23 @@ namespace TunrRT
         private void OnResuming(object sender, object e)
         {
             BackgroundAudioHandler.App_Resuming();
+            if (this.Resources["Data"] != null && ((DataSource)Resources["Data"]).AuthToken != null)
+            {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                ((DataSource)Resources["Data"]).Synchronize();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            }
+        }
+
+        protected override void OnActivated(IActivatedEventArgs args)
+        {
+            if (this.Resources["Data"] != null && ((DataSource)Resources["Data"]).AuthToken != null)
+            {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                ((DataSource)Resources["Data"]).Synchronize();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            }
+            base.OnActivated(args);
         }
     }
 }
