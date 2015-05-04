@@ -348,9 +348,9 @@ namespace TunrRT
                                 System.Diagnostics.Debug.WriteLine("Processing changeset " + changeSet.ChangeSetId + "...");
                                 foreach (var change in changeSet.Changes)
                                 {
-                                    if (change.Key == ChangeSetDetails.ChangeType.Create || change.Key == ChangeSetDetails.ChangeType.Update)
+                                    if (change.Type == ChangeDetails.ChangeType.Create || change.Type == ChangeDetails.ChangeType.Update)
                                     {
-                                        songsToAddUpdate.Add(change.Value);
+                                        songsToAddUpdate.Add(change.Song);
                                     }
 
                                     // TODO: Handle delete
