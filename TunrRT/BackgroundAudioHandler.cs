@@ -190,7 +190,7 @@ namespace TunrRT
             }
             var initResult = ThreadPool.RunAsync((source) =>
             {
-                bool result = BackgroundTaskInitialized.WaitOne(2000);
+                bool result = BackgroundTaskInitialized.WaitOne(3000);
                 if (result != true)
                 {
                     throw new Exception("Background Audio Task didn't start in expected time");

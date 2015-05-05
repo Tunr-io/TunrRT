@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using TunrLibrary;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
@@ -104,6 +105,27 @@ namespace TunrRT
 
                 rootFrame.ContentTransitions = null;
                 rootFrame.Navigated += this.RootFrame_FirstNavigated;
+
+                // Migrate database if need be
+                string oldVersion = "1.1.0.0";
+                if (ApplicationData.Current.LocalSettings.Values.ContainsKey("LastVersion"))
+                {
+                    oldVersion = (string)(ApplicationData.Current.LocalSettings.Values["LastVersion"]);
+                }
+
+                if (oldVersion == "1.1.0.0")
+                {
+                    // Clear the database and our sync history
+                    LibraryManager.ClearDb();
+                    ApplicationSettingsHelper.ReadResetSettingsValue(GlobalConstants.KeyLatestSyncId);
+                    ApplicationSettingsHelper.ReadResetSettingsValue(GlobalConstants.KeyCurrentPlaylistItemId);
+                    ApplicationSettingsHelper.ReadResetSettingsValue(GlobalConstants.KeyCurrentPlaylistId);
+                }
+
+                // Save current version
+                PackageVersion version = Package.Current.Id.Version;
+                string versionString = string.Format("{0}.{1}.{2}.{3}", version.Major, version.Minor, version.Build, version.Revision);
+                ApplicationData.Current.LocalSettings.Values["LastVersion"] = versionString;
 
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation

@@ -14,7 +14,7 @@ namespace TunrLibrary
         /// <summary>
         /// Reference to the LexDb instance
         /// </summary>
-        private static readonly DbInstance LexDb;
+        private static DbInstance LexDb;
 
         /// <summary>
         /// Reference to the LexDb table for storing songs
@@ -54,6 +54,11 @@ namespace TunrLibrary
         /// </summary>
         static LibraryManager()
         {
+            DbInit();
+        }
+
+        public static void DbInit()
+        {
             // Initialize library cache
             LibraryCache = new ConcurrentDictionary<Guid, Song>();
 
@@ -73,6 +78,15 @@ namespace TunrLibrary
                 .Automap(p => p.PlaylistItemId)
                 .WithIndex("PlaylistFK", p => p.PlaylistFK);
             LexDb.Initialize();
+        }
+
+        public static void ClearDb()
+        {
+            LexDb.Purge();
+            LexDb.Dispose();
+            LibraryCache.Clear();
+            DbInit();
+            OnLibraryUpdate();
         }
 
         /// <summary>

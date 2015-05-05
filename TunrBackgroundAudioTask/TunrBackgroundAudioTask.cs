@@ -154,7 +154,8 @@ namespace TunrBackgroundAudioTask
             BackgroundTaskStarted.Set();
             IsBackgroundTaskRunning = true;
             ApplicationSettingsHelper.SaveSettingsValue(GlobalConstants.KeyBackgroundTaskState, GlobalConstants.BackgroundTaskStateRunning);
-            BackgroundMediaPlayer.SendMessageToForeground(new ValueSet() { { "KeyBackgroundTaskStarted", "" } });
+            BackgroundMediaPlayer.SendMessageToForeground(new ValueSet() { { GlobalConstants.KeyBackgroundTaskStarted, "" } });
+            Debug.WriteLine("Sent started message.");
 
             deferral = taskInstance.GetDeferral();
         }
